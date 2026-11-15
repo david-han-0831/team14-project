@@ -3,6 +3,9 @@ import html, json
 from pathlib import Path
 D = Path(__file__).parent
 deck = json.loads((D / "deck.json").read_text(encoding="utf-8"))
+import os
+SKIP = [k for k in os.environ.get("DECK_SKIP", "").split("|") if k]
+deck["slides"] = [s for s in deck["slides"] if not any((s.get("title") or "").startswith(k) for k in SKIP)]
 e = html.escape
 def bl(items, cls="bl"):
     out = []
