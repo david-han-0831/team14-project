@@ -3,6 +3,9 @@ import html, json
 from pathlib import Path
 D = Path(__file__).parent
 deck = json.loads((D / "deck.json").read_text(encoding="utf-8"))
+import os
+SKIP = [k for k in os.environ.get("DECK_SKIP", "").split("|") if k]
+deck["slides"] = [s for s in deck["slides"] if not any((s.get("title") or "").startswith(k) for k in SKIP)]
 e = html.escape
 def bl(items, cls="bl"):
     out = []
@@ -50,7 +53,7 @@ h2 { font-size: 30px; margin: 0 0 22px; padding-left: 18px; border-left: 10px so
 .lead { font-size: 30px; font-weight: 700; margin: 30px 0 10px; line-height: 1.35; } .sublead { font-size: 22px; color: #5b6b7f; margin: 0 0 40px; }
 .formula-row { display: flex; align-items: center; gap: 28px; margin-bottom: 44px; }
 .formula { background: #e6ecff; color: #2d5bff; font-size: 52px; font-weight: 700; padding: 22px 48px; border-radius: 12px; font-family: Helvetica, Arial, sans-serif; }
-.fnote { color: #5b6b7f; font-size: 19px; max-width: 560px; }
+.fnote { color: #5b6b7f; font-size: 19px; max-width: 560px; white-space: pre-line; }
 ul.bl { margin: 0; padding-left: 26px; font-size: 20px; line-height: 1.55; } ul.bl li { margin: 0 0 18px; } ul.bl li b { color: #2d5bff; margin-right: 6px; }
 ul.bl.small { font-size: 16.5px; } ul.bl.small li { margin: 0 0 10px; }
 .cols { display: flex; gap: 22px; } .col { flex: 1; background: #f7f8fb; border: 1px solid #d9dfe8; border-radius: 12px; padding: 16px 20px; min-height: 440px; }
