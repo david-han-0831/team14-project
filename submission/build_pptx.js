@@ -4,6 +4,9 @@ const path = require("path");
 const PptxGenJS = require("pptxgenjs");
 
 const deck = JSON.parse(fs.readFileSync(path.join(__dirname, "deck.json"), "utf8"));
+// DECK_SKIP="Q&A|부록" 처럼 제목 접두사로 슬라이드 제외(제출본에서 Q&A 제거용), DECK_OUT 으로 출력명 지정
+const SKIP = (process.env.DECK_SKIP || "").split("|").filter(Boolean);
+deck.slides = deck.slides.filter((s) => !SKIP.some((k) => (s.title || "").startsWith(k)));
 const C = { ink: "16202E", muted: "5B6B7F", line: "D9DFE8", blue: "2D5BFF", blueSoft: "E6ECFF", orange: "FF8A3D", purple: "7B4DFF", purpleSoft: "F0EAFF", bg: "F7F8FB", white: "FFFFFF", green: "1F9D6A" };
 const FONT = "Apple SD Gothic Neo"; // Windows 에서는 맑은 고딕으로 자동 대체됨
 const pptx = new PptxGenJS();
@@ -102,4 +105,4 @@ deck.slides.forEach((s, i) => {
   }
 });
 // 출력 파일명은 deck.json 의 "output" (없으면 Team14). 중간발표는 Team14_mid.
-pptx.writeFile({ fileName: path.join(__dirname, (deck.output || "Team14") + ".pptx") }).then((f) => console.log("wrote", f));
+pptx.writeFile({ fileName: path.join(__dirname, (process.env.DECK_OUT || deck.output || "Team14") + ".pptx") }).then((f) => console.log("wrote", f));
