@@ -133,3 +133,18 @@ def test_mock_solver_varies_by_cell_and_is_repeatable():
     first = [core.solve(i, "none")["correct"] for i in ids]
     assert True in first and False in first
     assert first == [core.solve(i, "none")["correct"] for i in ids]
+
+
+def test_health_reports_whether_materials_are_readable():
+    """배포 번들에 브리프·주차 페이지가 빠지면 자료 조건이 '자료 없음'과 같아진다. health 로 드러낸다."""
+    m = core.health()["materials"]
+    assert set(m) == {"week02", "week04", "week08", "week09"}
+    assert all(v == {"brief": True, "page": True} for v in m.values())
+
+
+def test_solve_is_502_when_material_is_missing(monkeypatch, fake_llm_factory):
+    monkeypatch.setattr(core.ev_common, "context_for", lambda week, condition, *a: "")
+    with pytest.raises(core.LiveError) as e:
+        core.solve("w09a-c03", "page", llm=fake_llm_factory("ANSWER: 1"))
+    assert e.value.status == 502
+    core.solve("w09a-c03", "none", llm=fake_llm_factory("ANSWER: 1"))  # 자료 없음 조건은 빈 자료가 정상

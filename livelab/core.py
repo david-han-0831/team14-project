@@ -62,11 +62,22 @@ def _set_questions(set_name: str) -> list[dict]:
     return [q for q in _QUESTIONS.values() if q["week"] in weeks]
 
 
+def _material(week: str, condition: str) -> str:
+    """조건에 맞는 참고 자료. 파일이 없거나 비어 있으면 빈 문자열."""
+    try:
+        return ev_common.context_for(week, condition) or ""
+    except OSError:
+        return ""
+
+
 def health() -> dict:
+    weeks = sorted({w for ws in SETS.values() for w in ws})
     return {
         "live": is_live(),
         "model": MODEL,
-        "sets": [{"name": name, "weeks": weeks, "n": len(_set_questions(name))} for name, weeks in SETS.items()],
+        "sets": [{"name": name, "weeks": ws, "n": len(_set_questions(name))} for name, ws in SETS.items()],
+        # 배포 번들에 자료가 빠졌는지 드러낸다 (빠지면 자료 조건이 '자료 없음'과 같아진다)
+        "materials": {w: {c: bool(_material(w, c)) for c in ("brief", "page")} for w in weeks},
     }
 
 
@@ -106,7 +117,9 @@ def solve(qid: str, condition: str, llm=None) -> dict:
         llm = ev_common.LLM(mock=mock, usage=ev_common.Usage(), seed=seed)
 
     week = q["week"]
-    ctx = ev_common.context_for(week, condition)
+    ctx = _material(week, condition)
+    if condition != "none" and not ctx:
+        raise LiveError(502, "참고 자료를 불러오지 못했습니다")
     # evolve/solve.py 의 run() 과 같은 프롬프트 모양
     user = (f"[참고 자료: {week}]\n{ctx}\n\n" if ctx else "") + "[문제]\n" + ev_solve.fmt_question(q)
     t0 = time.time()
