@@ -74,3 +74,8 @@ def test_unexpected_exception_is_500_without_detail(monkeypatch):
     monkeypatch.setattr(core, "health", boom)
     s, b = http.handle("GET", "/api/health", {}, b"")
     assert s == 500 and b == {"error": "서버 오류"}
+
+
+def test_deeply_nested_body_is_400_not_500():
+    s, b = http.handle("POST", "/api/solve", {}, b"[" * 4096)
+    assert s == 400 and "error" in b

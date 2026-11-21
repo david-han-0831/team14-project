@@ -20,3 +20,4 @@ submission/package-lock.json
 live/node_modules/
 live/dist/
 .vercel/
+live/*.tsbuildinfo

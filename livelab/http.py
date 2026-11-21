@@ -17,7 +17,7 @@ MAX_BODY = 4096
 def _solve(query: dict, body: bytes) -> dict:
     try:
         data = json.loads(body.decode("utf-8"))
-    except (UnicodeDecodeError, ValueError):
+    except (UnicodeDecodeError, ValueError, RecursionError):  # 깊게 중첩된 본문도 400
         raise core.LiveError(400, "요청 본문이 JSON 이 아닙니다") from None
     if not isinstance(data, dict):
         raise core.LiveError(400, "요청 본문 형식이 잘못됐습니다")

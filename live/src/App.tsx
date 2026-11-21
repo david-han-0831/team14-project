@@ -10,8 +10,7 @@ import { CONDITIONS, getBank, getHealth, getReports, postSolve, type Condition, 
 import { CONDITION_LABEL, SET_LABEL, SITE_URL } from "./lib/labels";
 import { runExperiment, type StopReason } from "./lib/runner";
 import { accuracy, bootstrapCI } from "./lib/stats";
-
-type Phase = "loading" | "ready" | "running" | "finished" | "closed" | "error";
+import { canRun, type Phase } from "./lib/ui";
 
 const SET_WEEKS: Record<SetName, string> = { week09: "week09", seed: "week02,week04,week08" };
 const STOP_TEXT: Partial<Record<StopReason, string>> = {
@@ -25,6 +24,8 @@ export default function App() {
   const [reports, setReports] = useState<Report[]>([]);
   const [setName, setSetName] = useState<SetName>("week09");
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [loadedSet, setLoadedSet] = useState<SetName | null>(null); // 화면의 문항이 어느 세트 것인지
+  const [reloadKey, setReloadKey] = useState(0); // "다시 시도" 때 문항도 다시 받는다
   const [cells, setCells] = useState<Cells>({});
   const [stopReason, setStopReason] = useState<StopReason | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +34,7 @@ export default function App() {
   const load = useCallback(async () => {
     setPhase("loading");
     setError(null);
+    setReloadKey((k) => k + 1);
     try {
       const [h, r] = await Promise.all([getHealth(), getReports()]);
       setHealth(h);
@@ -53,10 +55,15 @@ export default function App() {
   useEffect(() => {
     if (!health?.live) return;
     let cancelled = false;
+    // 새 세트를 받는 동안 이전 세트 문항으로 실행되지 않게 먼저 비운다
+    setQuestions([]);
+    setLoadedSet(null);
+    setCells({});
     getBank(setName)
       .then((b) => {
         if (cancelled) return;
         setQuestions(b.questions);
+        setLoadedSet(b.set);
         setCells({});
         setStopReason(null);
         setPhase((p) => (p === "finished" ? "ready" : p));
@@ -69,10 +76,11 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [health?.live, setName]);
+  }, [health?.live, setName, reloadKey]);
 
   const run = useCallback(() => {
-    if (phase === "running" || questions.length === 0) return;
+    if (!canRun({ phase, setName, loadedSet, questionCount: questions.length })) return;
+    ctrlRef.current?.abort(); // 혹시 남아 있는 이전 실행을 끊는다
     const ctrl = new AbortController();
     ctrlRef.current = ctrl;
     const current = () => ctrlRef.current === ctrl; // 이전 실행의 늦은 응답이 새 표에 섞이지 않게
@@ -98,7 +106,7 @@ export default function App() {
       setStopReason(stopped);
       setPhase("finished");
     });
-  }, [phase, questions]);
+  }, [phase, questions, setName, loadedSet]);
 
   const stop = useCallback(() => ctrlRef.current?.abort(), []);
 
@@ -202,6 +210,7 @@ export default function App() {
               running={phase === "running"}
               done={done}
               total={total}
+              runnable={canRun({ phase, setName, loadedSet, questionCount: questions.length })}
               onSet={setSetName}
               onRun={run}
               onStop={stop}

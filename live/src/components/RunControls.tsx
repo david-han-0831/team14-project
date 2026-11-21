@@ -7,12 +7,13 @@ interface Props {
   running: boolean;
   done: number;
   total: number;
+  runnable: boolean;
   onSet: (s: SetName) => void;
   onRun: () => void;
   onStop: () => void;
 }
 
-export default function RunControls({ health, setName, running, done, total, onSet, onRun, onStop }: Props) {
+export default function RunControls({ health, setName, running, done, total, runnable, onSet, onRun, onStop }: Props) {
   return (
     <div className="controls">
       <div className="segmented" role="group" aria-label="문항 세트">
@@ -28,12 +29,12 @@ export default function RunControls({ health, setName, running, done, total, onS
             멈춤
           </button>
         ) : (
-          <button type="button" className="btn primary" onClick={onRun} disabled={total === 0}>
+          <button type="button" className="btn primary" onClick={onRun} disabled={!runnable}>
             실험 실행
           </button>
         )}
         <span className="progress-text" aria-live="polite">
-          {running || done > 0 ? `${done} / ${total}칸` : `${total}칸 · 모델 ${health.model}`}
+          {total === 0 ? "문항을 불러오는 중" : running || done > 0 ? `${done} / ${total}칸` : `${total}칸 · 모델 ${health.model}`}
         </span>
       </div>
     </div>

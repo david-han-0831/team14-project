@@ -102,6 +102,53 @@ def _map_llm_error(exc: Exception) -> LiveError:
     return LiveError(502, "모델 호출에 실패했습니다")
 
 
+API_TIMEOUT_S = 25.0  # 서버 함수 시간 제한(60초) 안에 끝나도록
+
+
+def _anthropic_client():
+    """SDK 내부 재시도 없이, 짧은 시간 제한으로. 재시도는 브라우저 쪽 실행기가 한다."""
+    import anthropic
+
+    return anthropic.Anthropic(max_retries=0, timeout=API_TIMEOUT_S)
+
+
+class _FailFastMessages:
+    """messages.create 의 API 오류를 곧바로 LiveError 로 바꾼다.
+
+    evolve 의 LLM.ask 는 한도 초과 때 최대 60초씩 세 번 잠들고 5xx 도 기다렸다 재시도한다.
+    연구 스크립트에는 맞지만 서버 함수에서는 시간 제한에 걸려 죽는다. 여기서 먼저 끊는다.
+    """
+
+    def __init__(self, inner):
+        self._inner = inner
+
+    def create(self, **kw):
+        import anthropic
+
+        try:
+            return self._inner.create(**kw)
+        except anthropic.APIError as exc:
+            raise _map_llm_error(exc) from None
+
+
+class _FailFastClient:
+    def __init__(self, inner):
+        self.messages = _FailFastMessages(inner.messages)
+
+
+def _make_llm(qid: str, condition: str):
+    if os.environ.get("LIVE_MOCK") == "1":
+        # 가짜 풀이자는 칸마다 시드를 달리해 정답·오답이 섞이게 한다 (실제 호출에는 영향 없음)
+        seed = zlib.crc32(f"{qid}/{condition}".encode())
+        return ev_common.LLM(mock=True, usage=ev_common.Usage(), seed=seed)
+    # 실제 호출은 항상 API 백엔드 (evolve 의 EVOLVE_BACKEND 환경 설정과 무관하게)
+    llm = ev_common.LLM(mock=True, usage=ev_common.Usage())  # mock=True: 생성자에서 클라이언트를 만들지 않게
+    llm.mock = False
+    llm.backend = "api"
+    llm._client = _FailFastClient(_anthropic_client())
+    return llm
+
+
 def solve(qid: str, condition: str, llm=None) -> dict:
     if condition not in CONDITIONS:
         raise LiveError(400, "알 수 없는 조건입니다")
@@ -111,10 +158,7 @@ def solve(qid: str, condition: str, llm=None) -> dict:
     if not is_live():
         raise LiveError(503, "라이브 실행이 꺼져 있습니다")
     if llm is None:
-        mock = os.environ.get("LIVE_MOCK") == "1"
-        # 가짜 풀이자는 칸마다 시드를 달리해 정답·오답이 섞이게 한다 (실제 호출에는 영향 없음)
-        seed = zlib.crc32(f"{qid}/{condition}".encode()) if mock else 14
-        llm = ev_common.LLM(mock=mock, usage=ev_common.Usage(), seed=seed)
+        llm = _make_llm(qid, condition)
 
     week = q["week"]
     ctx = _material(week, condition)

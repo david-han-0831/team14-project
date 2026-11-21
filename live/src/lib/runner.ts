@@ -15,13 +15,22 @@ export interface RunOptions {
   signal: AbortSignal;
   onCell: (qid: string, condition: Condition, cell: Cell) => void;
   concurrency?: number;
+  retryDelayMs?: number;
 }
 
 export const MAX_CONSECUTIVE_FAILURES = 5;
+export const RETRY_DELAY_MS = 800;
+
+/** 다시 해 볼 만한 실패인가: 네트워크 오류·시간 초과, 429, 5xx. 4xx 는 요청 자체가 틀린 것이라 다시 해도 같다. */
+function retryable(e: unknown): boolean {
+  if (!(e instanceof ApiError)) return true;
+  return e.status === 429 || e.status >= 500;
+}
 
 export async function runExperiment(opts: RunOptions): Promise<{ stopped: StopReason }> {
   const { questions, conditions, solve, signal, onCell } = opts;
   const concurrency = Math.max(1, opts.concurrency ?? 3);
+  const retryDelayMs = opts.retryDelayMs ?? RETRY_DELAY_MS;
   const tasks: Array<[string, Condition]> = [];
   for (const q of questions) for (const c of conditions) tasks.push([q.id, c]);
 
@@ -36,6 +45,8 @@ export async function runExperiment(opts: RunOptions): Promise<{ stopped: StopRe
         return await solve(qid, c, signal);
       } catch (e) {
         if (e instanceof ApiError && e.status === 503) return "disabled";
+        if (halted() || i === 1 || !retryable(e)) return "failed";
+        if (retryDelayMs > 0) await new Promise((r) => setTimeout(r, retryDelayMs));
         if (halted()) return "failed";
       }
     }

@@ -25,7 +25,7 @@ describe("runExperiment", () => {
     let inFlight = 0, maxInFlight = 0;
     const rec = recorder();
     const out = await runExperiment({
-      questions: questions(5), conditions: CONDS, signal: new AbortController().signal, onCell: rec.onCell,
+      questions: questions(5), conditions: CONDS, signal: new AbortController().signal, onCell: rec.onCell, retryDelayMs: 0,
       solve: async (qid, c) => {
         calls.push(`${qid}/${c}`); inFlight++; maxInFlight = Math.max(maxInFlight, inFlight);
         await tick(); inFlight--; return ok(qid, c, c !== "none");
@@ -45,7 +45,7 @@ describe("runExperiment", () => {
     const attempts = new Map<string, number>();
     const rec = recorder();
     const out = await runExperiment({
-      questions: questions(3), conditions: ["none"], signal: new AbortController().signal, onCell: rec.onCell,
+      questions: questions(3), conditions: ["none"], signal: new AbortController().signal, onCell: rec.onCell, retryDelayMs: 0,
       solve: async (qid, c) => {
         attempts.set(qid, (attempts.get(qid) ?? 0) + 1);
         if (qid === "q1") throw new ApiError(502, "모델 호출에 실패했습니다");
@@ -64,7 +64,7 @@ describe("runExperiment", () => {
     let first = true;
     const rec = recorder();
     await runExperiment({
-      questions: questions(1), conditions: ["none"], signal: new AbortController().signal, onCell: rec.onCell,
+      questions: questions(1), conditions: ["none"], signal: new AbortController().signal, onCell: rec.onCell, retryDelayMs: 0,
       solve: async (qid, c) => { if (first) { first = false; throw new ApiError(429, "많음"); } return ok(qid, c); },
     });
     expect(finalStatus(rec.cells).get("q0/none")).toBe("ok");
@@ -73,7 +73,7 @@ describe("runExperiment", () => {
   test("stops with 'too-many-failures' after 5 consecutive failed cells", async () => {
     const started = new Set<string>();
     const out = await runExperiment({
-      questions: questions(20), conditions: ["none"], signal: new AbortController().signal, onCell: () => {}, concurrency: 1,
+      questions: questions(20), conditions: ["none"], signal: new AbortController().signal, onCell: () => {}, concurrency: 1, retryDelayMs: 0,
       solve: async (qid) => { started.add(qid); throw new ApiError(502, "실패"); },
     });
     expect(out.stopped).toBe("too-many-failures");
@@ -82,7 +82,7 @@ describe("runExperiment", () => {
 
   test("a success resets the consecutive-failure count", async () => {
     const out = await runExperiment({
-      questions: questions(12), conditions: ["none"], signal: new AbortController().signal, onCell: () => {}, concurrency: 1,
+      questions: questions(12), conditions: ["none"], signal: new AbortController().signal, onCell: () => {}, concurrency: 1, retryDelayMs: 0,
       solve: async (qid, c) => { if (Number(qid.slice(1)) % 5 === 4) return ok(qid, c); throw new ApiError(502, "실패"); },
     });
     expect(out.stopped).toBe("done");
@@ -91,7 +91,7 @@ describe("runExperiment", () => {
   test("stops with 'disabled' on a 503 and starts no further requests", async () => {
     const started: string[] = [];
     const out = await runExperiment({
-      questions: questions(10), conditions: ["none"], signal: new AbortController().signal, onCell: () => {}, concurrency: 1,
+      questions: questions(10), conditions: ["none"], signal: new AbortController().signal, onCell: () => {}, concurrency: 1, retryDelayMs: 0,
       solve: async (qid, c) => { started.push(qid); if (qid === "q2") throw new ApiError(503, "꺼짐"); return ok(qid, c); },
     });
     expect(out.stopped).toBe("disabled");
@@ -104,7 +104,7 @@ describe("runExperiment", () => {
     const rec = recorder();
     const release: Array<() => void> = [];
     const p = runExperiment({
-      questions: questions(10), conditions: ["none"], signal: ctrl.signal, onCell: rec.onCell, concurrency: 2,
+      questions: questions(10), conditions: ["none"], signal: ctrl.signal, onCell: rec.onCell, concurrency: 2, retryDelayMs: 0,
       solve: (qid, c) => { started.push(qid); return new Promise((res) => release.push(() => res(ok(qid, c)))); },
     });
     await tick();
@@ -126,5 +126,26 @@ describe("runExperiment", () => {
     });
     expect(out.stopped).toBe("aborted");
     expect(n).toBe(0);
+  });
+
+  test("waits before retrying a failed cell", async () => {
+    const times: number[] = [];
+    await runExperiment({
+      questions: questions(1), conditions: ["none"], signal: new AbortController().signal, onCell: () => {}, retryDelayMs: 40,
+      solve: async (qid, c) => { times.push(Date.now()); if (times.length === 1) throw new ApiError(429, "많음"); return ok(qid, c); },
+    });
+    expect(times).toHaveLength(2);
+    expect(times[1] - times[0]).toBeGreaterThanOrEqual(35);
+  });
+
+  test("does not retry a 400 (the request itself is wrong)", async () => {
+    let n = 0;
+    const rec = recorder();
+    await runExperiment({
+      questions: questions(1), conditions: ["none"], signal: new AbortController().signal, onCell: rec.onCell, retryDelayMs: 0,
+      solve: async () => { n++; throw new ApiError(400, "잘못된 요청"); },
+    });
+    expect(n).toBe(1);
+    expect(finalStatus(rec.cells).get("q0/none")).toBe("failed");
   });
 });

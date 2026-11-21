@@ -73,10 +73,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export const getHealth = () => request<Health>("/api/health");
 export const getBank = (set: SetName) => request<Bank>(`/api/bank?set=${set}`);
 export const getReports = () => request<{ reports: Report[] }>("/api/reports").then((r) => r.reports);
+export const SOLVE_TIMEOUT_MS = 45_000; // 서버 함수 시간 제한(60초)보다 먼저 포기한다
+
 export const postSolve = (qid: string, condition: Condition, signal: AbortSignal) =>
   request<SolveResult>("/api/solve", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ qid, condition }),
-    signal,
+    signal: AbortSignal.any([signal, AbortSignal.timeout(SOLVE_TIMEOUT_MS)]),
   });

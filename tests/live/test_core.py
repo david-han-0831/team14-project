@@ -148,3 +148,54 @@ def test_solve_is_502_when_material_is_missing(monkeypatch, fake_llm_factory):
         core.solve("w09a-c03", "page", llm=fake_llm_factory("ANSWER: 1"))
     assert e.value.status == 502
     core.solve("w09a-c03", "none", llm=fake_llm_factory("ANSWER: 1"))  # 자료 없음 조건은 빈 자료가 정상
+
+
+class _RaisingMessages:
+    def __init__(self, exc):
+        self.exc, self.calls = exc, 0
+
+    def create(self, **kw):
+        self.calls += 1
+        raise self.exc
+
+
+def _rate_limit_error():
+    import anthropic
+    import httpx
+
+    req = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+    return anthropic.RateLimitError("rate limited", response=httpx.Response(429, request=req), body=None)
+
+
+def test_real_backend_rate_limit_fails_fast_as_429(monkeypatch):
+    """실제 API 경로: 한도 초과면 서버 함수 안에서 재시도·대기하지 않고 바로 429 를 돌려준다
+    (evolve 의 LLM.ask 는 최대 60초씩 잠들어 서버 함수 시간 제한 60초를 넘긴다)."""
+    monkeypatch.delenv("LIVE_MOCK", raising=False)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-not-real")
+    msgs = _RaisingMessages(_rate_limit_error())
+    monkeypatch.setattr(core, "_anthropic_client", lambda: type("C", (), {"messages": msgs})())
+    monkeypatch.setattr(core.time, "sleep", lambda s: (_ for _ in ()).throw(AssertionError(f"slept {s}s")))
+    with pytest.raises(core.LiveError) as e:
+        core.solve("w09a-c03", "none")
+    assert e.value.status == 429 and msgs.calls == 1
+
+
+def test_real_backend_server_error_fails_fast_as_502(monkeypatch):
+    import anthropic
+    import httpx
+
+    monkeypatch.delenv("LIVE_MOCK", raising=False)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-not-real")
+    req = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+    msgs = _RaisingMessages(anthropic.InternalServerError("boom", response=httpx.Response(529, request=req), body=None))
+    monkeypatch.setattr(core, "_anthropic_client", lambda: type("C", (), {"messages": msgs})())
+    monkeypatch.setattr(core.time, "sleep", lambda s: (_ for _ in ()).throw(AssertionError(f"slept {s}s")))
+    with pytest.raises(core.LiveError) as e:
+        core.solve("w09a-c03", "none")
+    assert e.value.status == 502 and msgs.calls == 1
+
+
+def test_real_backend_client_has_no_sdk_retries_and_a_short_timeout(monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-not-real")
+    c = core._anthropic_client()
+    assert c.max_retries == 0 and float(c.timeout) <= 30
