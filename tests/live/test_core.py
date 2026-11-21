@@ -125,3 +125,11 @@ def test_reports_include_recorded_week09_run():
     r = next(x for x in core.reports() if x["weeks"] == "week09")
     assert [(run["condition"], run["acc"]) for run in r["runs"]] == [("none", 0.6667), ("brief", 1.0), ("page", 0.9444)]
     assert r["runs"][0]["n"] == 18 and len(r["runs"][0]["acc_ci95"]) == 2
+
+
+def test_mock_solver_varies_by_cell_and_is_repeatable():
+    """가짜 풀이자는 칸마다 다른 결과를 내야 화면의 오답·정답 표시를 확인할 수 있다."""
+    ids = [q["id"] for q in core.bank("week09")["questions"]]
+    first = [core.solve(i, "none")["correct"] for i in ids]
+    assert True in first and False in first
+    assert first == [core.solve(i, "none")["correct"] for i in ids]

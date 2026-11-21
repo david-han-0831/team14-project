@@ -9,6 +9,7 @@ import json
 import os
 import sys
 import time
+import zlib
 from pathlib import Path
 from typing import Mapping
 
@@ -99,7 +100,10 @@ def solve(qid: str, condition: str, llm=None) -> dict:
     if not is_live():
         raise LiveError(503, "라이브 실행이 꺼져 있습니다")
     if llm is None:
-        llm = ev_common.LLM(mock=os.environ.get("LIVE_MOCK") == "1", usage=ev_common.Usage())
+        mock = os.environ.get("LIVE_MOCK") == "1"
+        # 가짜 풀이자는 칸마다 시드를 달리해 정답·오답이 섞이게 한다 (실제 호출에는 영향 없음)
+        seed = zlib.crc32(f"{qid}/{condition}".encode()) if mock else 14
+        llm = ev_common.LLM(mock=mock, usage=ev_common.Usage(), seed=seed)
 
     week = q["week"]
     ctx = ev_common.context_for(week, condition)
