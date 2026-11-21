@@ -12,6 +12,7 @@ Claude · GPT · 공개 모델의 동작을 **공개 자료 범위에서** 비�
 - 계획: [PLAN.md](PLAN.md) · 제출용 제안서: [docs/proposal.md](docs/proposal.md) · 작업 규칙: [CONTRIBUTING.md](CONTRIBUTING.md) · 주차별 콘텐츠 브리프: [content/briefs/](content/briefs/)
 - 제출물(11/15 제안 발표): [submission/](submission/) — `Team14.pptx` · `Team14.pdf` · `Team14.zip` (`deck.json` 한 벌에서 생성)
 - 실험실(라운드·분해 결과): https://wukong-daima.github.io/team14-project/lab/ · 루프 실행법: [evolve/README.md](evolve/README.md)
+- **라이브 실험실: https://team14-live-lab.vercel.app/** — 설치·로그인 없이 버튼 하나로 E3(하네스 효과) 실험을 실제로 돌려 봅니다. 코드는 [live/](live/)(화면) · [livelab/](livelab/) · [api/](api/)(서버), 설계는 [docs/superpowers/specs/2026-11-21-live-lab-design.md](docs/superpowers/specs/2026-11-21-live-lab-design.md)
 
 ## 주차 작업 시작하기
 
