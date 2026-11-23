@@ -169,6 +169,14 @@
           <div data-level="easy">
             <p>"누구에게 어떤 순서로 일을 시킬까"를 정하는 게 워크플로우예요. 경우의 수가 너무 많아서, 바둑 AI처럼 좋아 보이는 수를 더 깊이 보되 안 가본 수도 가끔 시도해 봐요.</p>
           </div>
+            <div class="evolve-patch" data-concept="workflow-design-adas-aflow">
+              <div class="callout"><b>🧬 자가 진화 보강 · 워크플로우 디자인: ADAS는 '누가 설계하나', AFlow는 '어떻게 탐색하나'</b>
+                <div data-level="pro"><p>워크플로우 디자인은 컨텍스트 엔지니어링(ACE·MCE)처럼 프롬프트·컨텍스트의 내용을 고치는 것이 아니라, 모델·도구·아티팩트를 어떤 순서와 구성으로 호출할지라는 구조를 최적화 대상으로 삼는다(p.26~29). ADAS는 이 구조 설계를 메타 에이전트에게 맡긴다(meta-agent search). 메타 에이전트는 태스크를 어떻게 분해하고, 어떤 순서로 어떤 LLM에 넣고, 답을 어떻게 종합할지를 정한다. 그런데 분해·순서·종합 방식의 조합은 무수히 많아서 모두 시도할 수 없다. 그래서 AFlow는 워크플로우를 트리로 보고 MCTS로 가장 그럴듯한 가지에 더 투자하면서, 덜 탐색한 가지도 함께 탐색한다. 대가는 exploration–exploitation 균형이다. 유망한 가지에만 몰면 더 좋은 구성을 놓치고, 덜 본 가지를 넓게 보면 후보마다 드는 평가 비용이 쌓인다. 같은 균형 문제를 진화 탐색에서는 ShinkaEvolve가 UCB로 다룬다(개념 6).</p></div>
+                <div data-level="easy"><p>워크플로우 디자인은 조별 과제에서 '누가 자료 조사, 누가 정리, 누가 발표'처럼 역할과 순서를 정하는 일이에요. ADAS는 이 순서표를 짜는 '팀장 AI'를 두는 방법이고, AFlow는 순서표 후보가 너무 많아서 바둑 AI처럼 좋아 보이는 쪽을 더 깊이 파 보되 안 가 본 쪽도 가끔 시도하는 방법이에요. 좋아 보이는 쪽만 파면 더 좋은 길을 놓치고, 전부 해 보면 시간이 너무 들어서 그 사이의 균형이 핵심이에요.</p></div>
+                <details class="small"><summary>근거 · 이유</summary><ul><li>강의 브리프 핵심 개념 4. 워크플로우 디자인 복습: ADAS와 AFlow (p.26~29)</li><li>강의 브리프 핵심 개념 3. 컨텍스트 엔지니어링 복습</li><li>강의 브리프 핵심 개념 6. 진화 탐색과 다양성: MAP-Elites, Island 진화 (UCB, ShinkaEvolve)</li><li>강의 브리프 핵심 개념 13. 열린 문제: 하네스 평가 비용</li></ul><p class="muted">약한 개념(workflow-design-adas-aflow)의 풀이자 정답률이 0.0입니다. 현재 카드는 ADAS와 AFlow를 나란히 나열하기만 해서 세 가지가 모호합니다. 첫째, 두 방법의 역할 차이(ADAS는 설계 주체로서의 메타 에이전트, AFlow는 거대한 조합 공간의 MCTS 탐색)가 드러나지 않습니다. 둘째, 컨텍스트 엔지니어링(내용 최적화)과 워크플로우 디자인(호출 구조 최적화)의 구분이 없습니다. 셋째, exploration–exploitation이 왜 대가를 수반하는지 설명이 없습니다. 브리프의 개념 3·4·6·13 범위 안에서만 이 세 축을 보강했습니다.</p></details>
+              </div>
+            </div>
+
         </div></section>
 
         <section class="concept" id="c5"><div class="card">
