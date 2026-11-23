@@ -21,3 +21,6 @@ live/node_modules/
 live/dist/
 .vercel/
 live/*.tsbuildinfo
+
+# 비공개 평가 세트(별도 private 저장소). 공개 저장소에 절대 커밋하지 않는다
+_heldout/
