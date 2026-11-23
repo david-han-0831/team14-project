@@ -141,3 +141,18 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   .bar-row { grid-template-columns: 1fr; grid-template-areas: "label" "track" "value"; }
   .controls { align-items: stretch; }
 }
+
+/* 진화 기록 */
+.evolve-log { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 12px; }
+.evolve-round { padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.evolve-round p { margin: 0.5em 0 0; }
+.evolve-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.evolve-date { font-family: var(--mono); font-size: 0.86rem; color: var(--muted); }
+.evolve-score { font-weight: 600; }
+.evolve-score .muted { font-weight: 400; }
+.tag { display: inline-block; padding: 2px 9px; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
+.tag.ok { background: color-mix(in srgb, var(--ok) 16%, transparent); color: var(--ok); }
+.evolve-patches { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 10px; }
+.evolve-patches > li { padding: 12px 14px; background: var(--surface-2); border-radius: 10px; }
+.evolve-patches details { margin-top: 6px; }
+.evolve-patches summary { cursor: pointer; color: var(--accent); font-size: 0.9rem; }

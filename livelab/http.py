@@ -30,7 +30,7 @@ def _solve(query: dict, body: bytes) -> dict:
 ROUTES = {
     "/api/health": ("GET", lambda q, b: core.health()),
     "/api/bank": ("GET", lambda q, b: core.bank(q.get("set", "week09"))),
-    "/api/reports": ("GET", lambda q, b: {"reports": core.reports()}),
+    "/api/reports": ("GET", lambda q, b: {"reports": core.reports(), "rounds": core.rounds()}),
     "/api/solve": ("POST", _solve),
 }
 

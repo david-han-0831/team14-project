@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ClosedNotice from "./components/ClosedNotice";
 import ConditionCards from "./components/ConditionCards";
+import EvolveLog from "./components/EvolveLog";
 import ProgressGrid, { type Cells } from "./components/ProgressGrid";
 import RecordedCompare from "./components/RecordedCompare";
 import ResultBars, { type ConditionStat } from "./components/ResultBars";
 import RunControls from "./components/RunControls";
 import UsageLine from "./components/UsageLine";
-import { CONDITIONS, getBank, getHealth, getReports, postSolve, type Condition, type Health, type Question, type Report, type SetName } from "./lib/api";
+import { CONDITIONS, getBank, getHealth, getReports, postSolve, type Condition, type Health, type Question, type Report, type Round, type SetName } from "./lib/api";
 import { CONDITION_LABEL, SET_LABEL, SITE_URL } from "./lib/labels";
 import { runExperiment, type StopReason } from "./lib/runner";
 import { accuracy, bootstrapCI } from "./lib/stats";
@@ -22,6 +23,7 @@ export default function App() {
   const [phase, setPhase] = useState<Phase>("loading");
   const [health, setHealth] = useState<Health | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
+  const [rounds, setRounds] = useState<Round[]>([]);
   const [setName, setSetName] = useState<SetName>("week09");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loadedSet, setLoadedSet] = useState<SetName | null>(null); // 화면의 문항이 어느 세트 것인지
@@ -38,7 +40,8 @@ export default function App() {
     try {
       const [h, r] = await Promise.all([getHealth(), getReports()]);
       setHealth(h);
-      setReports(r);
+      setReports(r.reports);
+      setRounds(r.rounds);
       setPhase(h.live ? "ready" : "closed");
     } catch {
       setError("서버에 연결하지 못했습니다.");
@@ -253,6 +256,12 @@ export default function App() {
               </>
             )}
           </>
+        )}
+        {(phase === "closed" || phase === "ready" || phase === "running" || phase === "finished") && (
+          <section id="evolve-log">
+            <h2>진화 기록 — 언제, 무엇을 고쳤나</h2>
+            <EvolveLog rounds={rounds} />
+          </section>
         )}
       </main>
 

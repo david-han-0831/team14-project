@@ -45,6 +45,28 @@ export interface Report {
   runs: ReportRun[];
 }
 
+export interface RoundPatch {
+  week: string;
+  card_id: string;
+  title: string | null;
+  concept: string | null;
+  reason: string | null;
+  easy: string | null;
+}
+export interface Round {
+  round: number;
+  date: string | null;
+  weeks: string[];
+  model: string | null;
+  accepted: boolean;
+  n_public: number | null;
+  acc_before: number | null;
+  acc_after: number | null;
+  ci_overlap: boolean | null;
+  weak_concepts: { week: string; concept: string; ids: string[] }[];
+  patches: RoundPatch[];
+}
+
 export class ApiError extends Error {
   status: number;
   constructor(status: number, message: string) {
@@ -72,7 +94,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const getHealth = () => request<Health>("/api/health");
 export const getBank = (set: SetName) => request<Bank>(`/api/bank?set=${set}`);
-export const getReports = () => request<{ reports: Report[] }>("/api/reports").then((r) => r.reports);
+export const getReports = () =>
+  request<{ reports: Report[]; rounds?: Round[] }>("/api/reports").then((r) => ({ reports: r.reports, rounds: r.rounds ?? [] }));
 export const SOLVE_TIMEOUT_MS = 45_000; // 서버 함수 시간 제한(60초)보다 먼저 포기한다
 
 export const postSolve = (qid: string, condition: Condition, signal: AbortSignal) =>

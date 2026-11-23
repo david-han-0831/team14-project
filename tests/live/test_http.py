@@ -79,3 +79,8 @@ def test_unexpected_exception_is_500_without_detail(monkeypatch):
 def test_deeply_nested_body_is_400_not_500():
     s, b = http.handle("POST", "/api/solve", {}, b"[" * 4096)
     assert s == 400 and "error" in b
+
+
+def test_reports_include_rounds():
+    s, b = http.handle("GET", "/api/reports", {}, b"")
+    assert s == 200 and any(r["round"] == 1 for r in b["rounds"])

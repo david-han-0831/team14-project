@@ -204,3 +204,32 @@ def reports() -> list[dict]:
                      for x in r.get("runs", [])],
         })
     return out
+
+
+def rounds() -> list[dict]:
+    """진화 라운드 기록: 언제, 어느 주차의 어떤 카드를 왜 고쳤고 정답률이 어떻게 변했는지. 최신 순."""
+    out = []
+    for p in ev_common.REPORT_DIR.glob("round-*.json"):
+        try:
+            r = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(r, dict) or r.get("mock") or not isinstance(r.get("round"), int):
+            continue
+        ci = r.get("ci95") or {}
+        out.append({
+            "round": r["round"],
+            "date": r.get("date"),
+            "weeks": r.get("weeks") or [],
+            "model": r.get("model"),
+            "accepted": bool(r.get("accepted")),
+            "n_public": r.get("n_public"),
+            "acc_before": (r.get("baseline") or {}).get("acc_public"),
+            "acc_after": (r.get("after") or {}).get("acc_public"),
+            "ci_overlap": ci.get("overlap"),
+            "weak_concepts": [{"week": w.get("week"), "concept": w.get("concept"), "ids": w.get("ids") or []}
+                              for w in r.get("weak_concepts") or []],
+            "patches": [{k: x.get(k) for k in ("week", "card_id", "title", "concept", "reason", "easy")}
+                        for x in r.get("patches") or []],
+        })
+    return sorted(out, key=lambda x: x["round"], reverse=True)

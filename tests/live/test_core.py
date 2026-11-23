@@ -199,3 +199,23 @@ def test_real_backend_client_has_no_sdk_retries_and_a_short_timeout(monkeypatch)
     monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-not-real")
     c = core._anthropic_client()
     assert c.max_retries == 0 and float(c.timeout) <= 30
+
+
+def test_rounds_list_what_each_round_changed():
+    """진화 기록 화면: 라운드마다 언제, 어느 주차의 어떤 카드를 왜 고쳤는지와 전후 정답률."""
+    r = next(x for x in core.rounds() if x["round"] == 1)
+    assert (r["date"], r["weeks"], r["accepted"]) == ("2026-11-23", ["week09"], True)
+    assert (r["acc_before"], r["acc_after"], r["n_public"], r["ci_overlap"]) == (0.9444, 1.0, 18, True)
+    assert r["weak_concepts"] == [{"week": "week09", "concept": "workflow-design-adas-aflow", "ids": ["w09a-c28"]}]
+    p = r["patches"][0]
+    assert (p["week"], p["card_id"]) == ("week09", "c4")
+    assert p["title"].startswith("워크플로우 디자인") and p["reason"] and p["easy"]
+
+
+def test_rounds_skip_mock_and_sort_newest_first(tmp_path, monkeypatch):
+    import json as _json
+    for n, mock in ((1, False), (2, True), (3, False)):
+        (tmp_path / f"round-{n:02d}.json").write_text(_json.dumps({"round": n, "mock": mock}), encoding="utf-8")
+    (tmp_path / "round-04.json").write_text("{broken", encoding="utf-8")
+    monkeypatch.setattr(core.ev_common, "REPORT_DIR", tmp_path)
+    assert [x["round"] for x in core.rounds()] == [3, 1]
