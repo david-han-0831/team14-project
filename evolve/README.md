@@ -68,3 +68,9 @@ GitHub Actions 에서 구독으로 돌리려면: 로컬에서 `claude setup-toke
 ## GitHub Actions
 
 `.github/workflows/evolve.yml` — 매주 일요일 18:00 UTC(월 03:00 KST) + 수동 실행. 시크릿: `CLAUDE_CODE_OAUTH_TOKEN`(구독, `claude setup-token`) **또는** `ANTHROPIC_API_KEY`(API) 중 하나, `HELDOUT_TOKEN`(비공개 저장소 읽기용 PAT, 선택). 결과는 `evolve/round-NN` 브랜치의 PR 로만 올라간다.
+
+## 구독·키 없이 보려면
+
+Claude 구독이나 API 키가 없으면 위 스크립트는 첫 호출에서 실패합니다. 그 경우 배포된 **라이브 실험실**(https://team14-live-lab.vercel.app/)에서 E3 를 버튼으로 돌려 볼 수 있습니다. 같은 `evolve/common.py` · `evolve/solve.py` 의 프롬프트와 채점을 서버에서 부릅니다(`livelab/core.py`). 수업이 끝나 연결을 끊은 뒤에는 저장된 리포트(`evolve/reports/`)만 보여 줍니다.
+
+로컬에서 띄우기: `LIVE_MOCK=1 python -m livelab.dev_server` (가짜 풀이자) 와 `npm --prefix live run dev`. 테스트: `python -m pytest tests/live` · `npm --prefix live run test`.

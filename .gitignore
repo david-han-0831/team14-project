@@ -15,3 +15,9 @@ evolve/runs/
 __pycache__/
 submission/node_modules/
 submission/package-lock.json
+
+# 라이브 실험실 (live/)
+live/node_modules/
+live/dist/
+.vercel/
+live/*.tsbuildinfo

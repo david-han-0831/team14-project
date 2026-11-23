@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "npm --prefix live ci",
+  "buildCommand": "npm --prefix live run build",
+  "outputDirectory": "live/dist",
+  "functions": {
+    "api/*.py": {
+      "maxDuration": 60,
+      "excludeFiles": "{live/**,submission/**,slides/**,docs/**,tests/**,quiz/**,lab/**,assets/css/**,assets/js/**,.claude/**,_workspace/**}"
+    }
+  }
+}

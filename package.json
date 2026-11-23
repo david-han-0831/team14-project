@@ -1,0 +1,6 @@
+{
+  "name": "team14-project",
+  "private": true,
+  "description": "라이브 실험실(live/) 배포용. Vercel 빌드의 Node 버전을 고정한다.",
+  "engines": { "node": "24.x" }
+}
