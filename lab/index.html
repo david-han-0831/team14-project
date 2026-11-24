@@ -60,14 +60,14 @@
       <table class="prereg">
         <tr><td>평가 세 단</td><td>1단 기출 그대로 · 2단 바꿔 쓴 기출(같은 사실·같은 정답, 문장과 보기 표현·순서만 다름, 기출과 1:1 짝) · 3단 같은 개념의 다른 측면. 2·3단 문항은 비공개이며 제안자·반례 출제자에게 보이지 않는다.</td></tr>
         <tr><td>분해</td><td><code>Δk</code> = 3라운드 뒤 정답률 − 빈 노트 정답률 (k단). <code>O_암기 = Δ1 − Δ2</code>, <code>O_측면 = Δ2 − Δ3</code>, <code>G = Δ3</code>, <code>Δ1 = O_암기 + O_측면 + G</code>. 기존 O 를 둘로 나눈 것이다(<code>O = O_암기 + O_측면</code>).</td></tr>
-        <tr><td>갈래</td><td><b>기출을 봄</b>: 제안자가 틀린 기출의 문제·보기·정답을 본다(양성 대조군) · <b>개념만 봄</b>: 개념 이름만 본다(지금 페이지 루프의 규칙) · <b>기출 + 반례</b>: 노트 규칙대로 풀면 틀리는 반례 문항으로 노트를 고친다(교수님 제안) · <b>기출 + 고쳐 쓰기</b>: 반례 없이 같은 수만큼 고친다(대조군)</td></tr>
+        <tr><td>갈래</td><td><b>기출을 봄</b>: 제안자가 틀린 기출의 문제·보기·정답을 본다(양성 대조군) · <b>개념만 봄</b>: 개념 이름만 본다(지금 페이지 루프의 규칙) · <b>기출 + 반례</b>: 노트 규칙대로 풀면 틀리는 반례 문항으로 노트를 고친다(교수님 제안) · <b>기출 + 고쳐 쓰기</b>: 반례 없이, 반례 갈래가 그 라운드에 쓴 고쳐 쓰기 호출 수만큼 고친다(대조군. 새 항목부터, 모자라면 이전 항목으로)</td></tr>
         <tr><td>H1 도구 검증</td><td>기출을 본 갈래에서 오버피팅이 보인다. 확인 조건: <code>Δ1 − Δ3</code> 의 95% 구간 하한 &gt; 0</td></tr>
-        <tr><td>H2 종류</td><td>기출을 본 갈래에서 <code>O_측면 &gt; O_암기</code>. 확인 조건: 차이의 구간 하한 &gt; 0 이고 정규화 향상으로 본 보조 분석도 같은 방향. 아니면 "구분 못 함". H1 이 확인되지 않으면 판정하지 않는다.</td></tr>
-        <tr><td>H3 처치</td><td>반례가 오버피팅을 줄인다. 확인 조건: <code>O(기출+고쳐 쓰기) − O(기출+반례)</code> 의 구간 하한 &gt; 0 이고, 반례 갈래의 <code>Δ1</code> 이 대조군보다 한 문항분(1/n) 넘게 낮지 않다.</td></tr>
+        <tr><td>H2 종류</td><td>기출을 본 갈래에서 <code>O_측면 &gt; O_암기</code>. 확인 조건: <code>O_측면 − O_암기</code> 의 구간 하한 &gt; 0 이고, 정규화 향상(<code>Δ / (1 − 기준선)</code>)으로 계산한 같은 차이의 점추정도 0 보다 크다. 아니면 "구분 못 함". H1 이 확인되지 않으면 판정하지 않는다.</td></tr>
+        <tr><td>H3 처치</td><td>반례가 오버피팅을 줄인다. 확인 조건: <code>O(기출+고쳐 쓰기) − O(기출+반례)</code> 의 구간 하한 &gt; 0 이고, 반례 갈래의 <code>Δ1</code> 이 대조군보다 한 문항분(1/n) 넘게 낮지 않다(점추정). 실험 1 에서 H1 이 확인되지 않으면 판정하지 않는다.</td></tr>
         <tr><td>H4 정보 차단</td><td>개념만 본 갈래는 기출을 본 갈래보다 O 도 <code>Δ1</code> 도 작다. 방향만 본다(탐색적).</td></tr>
         <tr><td>어느 실행이 무엇을</td><td>실험 1(기출을 봄, 개념만 봄) → H1·H2·H4. 실험 2(기출을 봄, 기출+반례, 기출+고쳐 쓰기) → H3 만. 10주차는 따로 판정하는 반복 실험.</td></tr>
-        <tr><td>동결</td><td>프롬프트와 코드(커밋), 풀이자 claude-haiku-5-5, 라운드 3, 문항당 3회, 라운드당 새 항목 5개 이하, 판정 시점 3라운드 뒤, 사다리 문항 집합(해시), 부트스트랩 1만 번·시드 14(1·2단은 짝 번호를 함께, 3단은 따로 뽑는 한 번의 추출). 프롬프트는 기출만 푸는 탐색 실행으로 다듬고, 사다리 2·3단은 동결 뒤 확정 실행에서 처음 푼다.</td></tr>
-        <tr><td>한계 (미리 적어 둠)</td><td>9주차 한 주차, 단마다 18~20여 문항이라 큰 차이만 구분된다. 구간은 문항 표본의 우연만 담고, 같은 루프를 다시 돌릴 때의 차이는 담지 않는다. 학습자는 LLM 이다. 노트 항목에 "보기 번호·문항 번호 금지, 3문장 이하" 제약을 걸었고 이것은 O_암기 를 낮추는 쪽으로 작용한다. H3 는 "확인 못 함"으로 끝날 가능성이 높다.</td></tr>
+        <tr><td>동결</td><td>프롬프트·코드·브리프·기출(커밋. 커밋하지 않은 변경이 있으면 확정 실행이 시작되지 않는다), 풀이자 claude-haiku-5-5, 제안·반례 출제·고쳐 쓰기 claude-opus-5-5, 반례를 거르는 풀이자 claude-sonnet-5-5, 라운드 3, 문항당 3회, 라운드당 새 항목 5개 이하, 반례는 항목당 1문항·라운드당 2번·거르는 풀이자 2회 정답·평가 문항과의 문장 겹침 0.5 미만, 판정 시점 3라운드 뒤, 9주차 사다리 문항 집합(2단 18 + 3단 20, 해시 <code>d959c127af33…</code>), 부트스트랩 1만 번·시드 14(1·2단은 짝 번호를 함께, 3단은 따로 뽑는 한 번의 추출). 확정 실행은 실험마다 한 번이며, 리포트가 이미 있으면 다시 시작되지 않는다. 프롬프트는 기출만 푸는 탐색 실행으로 다듬고, 사다리 2·3단은 동결 뒤 확정 실행에서 처음 푼다.</td></tr>
+        <tr><td>한계 (미리 적어 둠)</td><td>9주차 한 주차, 단마다 18~20여 문항이라 큰 차이만 구분된다. 구간은 문항 표본의 우연만 담고, 같은 루프를 다시 돌릴 때의 차이는 담지 않는다. 학습자는 LLM 이다. 노트 항목에 "보기 번호·문항 번호 금지, 3문장 이하" 제약을 걸었고 이것은 O_암기 를 낮추는 쪽으로 작용한다. 3단은 기출 15개 개념 중 14개만 덮는다(한 개념은 브리프의 사실이 모두 공개 문제에 있어 새 문항을 만들 수 없었다). H3 는 "확인 못 함"으로 끝날 가능성이 높다.</td></tr>
       </table>
       <p class="small muted">설계 문서: <a href="https://github.com/wukong-daima/team14-project/blob/main/docs/superpowers/specs/2026-11-24-transfer-ladder-counterexample-design.md">전이 사다리와 반례 처치 설계</a></p>
     </div>
@@ -235,15 +235,39 @@
         }).join("");
         box.appendChild(h("p", "verdicts", v));
       } else box.appendChild(h("p", "small muted", "일부 갈래만 돌린 실행이라 판정하지 않았습니다."));
+      // 판정에 쓴 통계를 그대로 보여 준다 (확인 못 함이어도 방향과 구간을 숨기지 않는다)
+      function ci(st) { return !st || st.point == null ? "–" : pp(st.point) + (st.lo == null ? "" : " [" + pp(st.lo) + ", " + pp(st.hi) + "]"); }
+      var used = [], B = r.boot, D = (r.boot || {}).diff || {};
+      if (B.seen) used.push("O = Δ1 − Δ3 (기출을 봄): " + ci(B.seen.O));
+      if (r.exp === "exp1" && B.seen) {
+        used.push("O_측면 − O_암기 (기출을 봄): " + ci(B.seen["O_facet-O_mem"]) + " · 정규화 향상으로는 " + (B.seen["nO_facet-nO_mem"].point == null ? "계산 불가" : pp(B.seen["nO_facet-nO_mem"].point)));
+        if (D["concept|seen"]) used.push("개념만 봄 − 기출을 봄: O " + ci(D["concept|seen"].O) + " · Δ1 " + ci(D["concept|seen"].d1));
+      }
+      if (r.exp === "exp2" && D["seen+rev|seen+ce"]) {
+        used.push("O(기출+고쳐 쓰기) − O(기출+반례): " + ci(D["seen+rev|seen+ce"].O));
+        used.push("Δ1(기출+반례) − Δ1(기출+고쳐 쓰기): " + pp(D["seen+ce|seen+rev"].d1.point) + " (허용 한계 " + pp(-1 / r.n.T1) + ")");
+      }
+      if (used.length) box.appendChild(h("p", "small", "판정에 쓴 값 · " + used.join(" / ")));
+      var up = r.unparsed_attempts || {}, upN = Object.keys(up).reduce(function (a, k) { return a + up[k]; }, 0);
+      if (upN) box.appendChild(h("p", "small", '<span class="badge check">주의</span> 답을 읽지 못해 오답으로 채점된 시도 ' + upN + "회 (" + Object.keys(up).map(function (k) { return (ARM_LABEL[k] || (k === "baseline" ? "기준선" : k)) + " " + up[k]; }).join(" · ") + ")"));
       arms.forEach(function (a) {
         var tr = r.arms[a].treat; if (!tr) return;
         var g = 0, ps = 0, rv = 0, dl = 0;
         tr.forEach(function (x) { g += x.generated || 0; ps += x.passed || 0; rv += (x.revised || []).length; dl += (x.deleted || []).length; });
-        box.appendChild(h("p", "small", (ARM_LABEL[a] || a) + ": " + (a === "seen+ce" ? "반례 출제 " + g + " · 거르기 통과 " + ps + " · " : "") + "고친 항목 " + rv + " · 지운 항목 " + dl));
+        var extra = "";
+        if (a === "seen+ce") {
+          var ovd = 0, traps = [];
+          tr.forEach(function (x) { ovd += (x.overlap && x.overlap.dropped) || 0; (x.trap_rate || []).forEach(function (t) { if (t != null) traps.push(pct(t)); }); });
+          extra = "반례 출제 " + g + " · 거르기 통과 " + ps + " · 평가 문항과 겹쳐 버림 " + ovd + " · 함정 선택률 " + (traps.length ? traps.join(", ") + " (회차마다 문항이 달라 서로 비교하지 않는다)" : "–") + " · ";
+        } else {
+          var bud = 0, uns = 0; tr.forEach(function (x) { bud += x.budget || 0; uns += x.unspent || 0; });
+          extra = "고쳐 쓰기 예산 " + bud + "회" + (uns ? " (못 쓴 것 " + uns + "회: 대조가 약해진다)" : "") + " · ";
+        }
+        box.appendChild(h("p", "small", (ARM_LABEL[a] || a) + ": " + extra + "고친 항목 " + rv + " · 지운 항목 " + dl));
       });
       if (r.dropped_pairs && r.dropped_pairs.length) box.appendChild(h("p", "small muted", "2단 짝이 없어 평가에서 뺀 기출: " + r.dropped_pairs.length + "문항"));
       box.appendChild(h("p", "small muted", "동결: 커밋 " + r.freeze.commit + " · 사다리 문항 해시 " + String(r.freeze.ladder_sha256).slice(0, 8) + " · 풀이자 " + r.model +
-        (r.resumed && r.resumed.length ? " · 이어 돌림 " + r.resumed.length + "회" : "") + " · 비용 $" + num(r.usage && r.usage.usd, 2)));
+        (r.resumed && r.resumed.length ? " · 이어 돌림 " + r.resumed.length + "회 (비용은 마지막 실행분만)" : "") + " · 비용 $" + num(r.usage && r.usage.usd, 2)));
       return box;
     }
 

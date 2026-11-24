@@ -56,7 +56,7 @@ def make_llm():
 
 
 def run(tmp_path, llm, **kw):
-    args = dict(explore=False, mock=True, public_bank=pub(), ladder_bank=lad(), freeze=FREEZE)
+    args = dict(explore=False, mock=True, public_bank=pub(), ladder_bank=lad(), freeze=FREEZE, h1_exp1="확인")
     args.update(kw)
     return nr.run_experiment("exp2", "weekXX", llm, nr.Store(tmp_path), **args)
 
@@ -96,7 +96,7 @@ def test_rev_arm_never_sees_a_counterexample(tmp_path):
 
 def test_exp2_judges_only_h3(tmp_path):
     rep = run(tmp_path, make_llm())
-    assert set(rep["judge"]) == {"H3", "H1_재현"} and rep["exp"] == "exp2"
+    assert set(rep["judge"]) == {"H3", "H1_재현", "H1_실험1"} and rep["exp"] == "exp2"
     assert rep["arms"]["seen"]["final"] == {"T1": 1.0, "T2": 0.5, "T3": 0.0}
     assert rep["arms"]["seen+ce"]["final"]["T3"] == pytest.approx(1 / 3, abs=1e-4)
 

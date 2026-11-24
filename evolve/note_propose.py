@@ -42,7 +42,10 @@ def _item_block(i: int, q: dict) -> str:
     return s
 
 
-def build_user(arm: str, week: str, failed: list[dict], notes: dict, brief: str) -> str:
+MAX_CONCEPT = 60     # 개념 이름의 최대 길이. 풀이자는 "(개념) 규칙"을 보므로 개념 칸도 제약을 받는다
+
+
+def build_user(arm: str, week: str, failed: list[dict], notes: dict, brief: str, max_new: int = 5) -> str:
     cur = notes_text(notes) or "(아직 비어 있음)"
     if sees_items(arm):
         body = "[풀이자가 틀린 기출 문제]\n" + "\n".join(_item_block(i, q) for i, q in enumerate(failed, 1))
@@ -51,7 +54,9 @@ def build_user(arm: str, week: str, failed: list[dict], notes: dict, brief: str)
         concepts = list(dict.fromkeys(q.get("concept") or "(미분류)" for q in failed))
         body = "[풀이자가 약한 개념]\n" + "\n".join(f"- {c}" for c in concepts)
         ask = "위 개념을 이해하는 데 필요한 내용을 노트에 덧붙일 항목으로 쓰세요."
-    return (f"[주차] {week}\n\n[지금의 학습 노트]\n{cur}\n\n{body}\n\n[강의 브리프]\n{brief}\n\n{ask} JSON 으로만 답합니다.")
+    limits = (f"항목은 최대 {max_new}개입니다(넘는 것은 버려집니다. 더 다뤄야 하면 중요한 것부터, 한 항목이 여러 내용을 함께 다뤄도 됩니다). "
+              f"rule 은 3문장 이하, concept 은 {MAX_CONCEPT}자 이하의 짧은 개념 이름입니다(넘으면 그 항목은 버려집니다).")
+    return (f"[주차] {week}\n\n[지금의 학습 노트]\n{cur}\n\n{body}\n\n[강의 브리프]\n{brief}\n\n{ask} {limits} JSON 으로만 답합니다.")
 
 
 def _norm(rule: str) -> str:
@@ -74,18 +79,23 @@ def propose_entries(arm: str, week: str, failed: list[dict], notes: dict, llm, p
                     max_new: int = 5, round_no: int = 0) -> dict:
     """통과한 항목을 notes 에 덧붙인다(수정·삭제는 하지 않는다). 버린 항목은 사유와 함께 돌려준다."""
     if not failed:
-        return {"added": [], "rejected": [], "raw_n": 0}
-    text = llm.ask(STRONG_MODEL, SYSTEM, build_user(arm, week, failed, notes, brief_bundle(week)), effort="high", max_tokens=6000,
+        return {"added": [], "rejected": [], "raw_n": 0, "parse_failed": False}
+    text = llm.ask(STRONG_MODEL, SYSTEM, build_user(arm, week, failed, notes, brief_bundle(week), max_new), effort="high", max_tokens=6000,
                    mock_hint={"kind": "note_propose", "concept": failed[0].get("concept", "")})
     raw = parse_entries(text)
     added, rejected = [], []
     for e in raw:
         rule = str(e.get("rule") or "").strip()
+        concept = str(e.get("concept") or "").strip()
+        src = e.get("sources")
+        sources = [src] if isinstance(src, str) and src.strip() else [str(x) for x in src] if isinstance(src, list) else []
         why: list[str] = []
-        if not rule or not str(e.get("concept") or "").strip():
+        if not rule or not concept:
             why = ["format"]
-        elif not e.get("sources"):
+        elif not sources:
             why = ["no_sources"]
+        elif len(concept) > MAX_CONCEPT or check_rule(concept):
+            why = ["concept"]
         else:
             why = check_rule(rule)
             if not why and _norm(rule) in {_norm(x["rule"]) for x in notes["entries"]}:
@@ -97,5 +107,8 @@ def propose_entries(arm: str, week: str, failed: list[dict], notes: dict, llm, p
         if why:
             rejected.append({"rule": rule, "why": why})
             continue
-        added.append(add_entry(notes, str(e["concept"]).strip(), rule, [str(s) for s in e["sources"]], "public-fail", round_no))
-    return {"added": added, "rejected": rejected, "raw_n": len(raw)}
+        added.append(add_entry(notes, concept, rule, sources, "public-fail", round_no))
+    out = {"added": added, "rejected": rejected, "raw_n": len(raw), "parse_failed": not raw}
+    if not raw:      # 통째로 해석하지 못한 응답: 빈 제안과 구분되게 앞부분을 남긴다(탐색 실행에서 원인을 보려고)
+        out["raw_head"] = (text or "")[:300]
+    return out

@@ -13,6 +13,7 @@ evolve/experiments.py  행동 실험 E1(effort) · E2(pass@k) · E3(하네스 �
 evolve/retro.py        사후 분해: 이미 머지된 라운드의 패치를 비공개 세트까지 써서 다시 잰다
 evolve/notes.py        학습 노트(루프가 고쳐 쓰는 규칙 목록)와 항목 제약
 evolve/note_propose.py 노트 제안자 (갈래마다 보는 것이 다름)
+evolve/counter.py      반례 처치(규칙대로 풀면 틀리는 문항으로 노트를 고침)와 고쳐 쓰기 대조군
 evolve/ladder.py       전이 사다리 분해 · 공동 부트스트랩 · 가설 판정
 evolve/note_round.py   노트 루프 실험 실행 (탐색/확정, 저장 지점에서 이어 돌리기)
 ```
@@ -97,8 +98,11 @@ EVOLVE_CLI_ISOLATION=--safe-mode EVOLVE_MAX_USD=25 .venv/bin/python evolve/note_
 .venv/bin/python evolve/note_round.py --exp exp1 --week week09 --mock
 ```
 
-- 사다리 문항 위치: `LADDER_DIR` → 비공개 세트 폴더 옆의 `ladder/` (예: `../team14-heldout/ladder`). 없으면 확정 실행은 멈추고 탐색·mock 만 된다.
-- 확정 실행은 `evolve/` 아래에 커밋하지 않은 변경이 있으면 시작하지 않는다. 리포트의 `freeze` 에 커밋과 사다리 문항 해시가 남는다.
+- 사다리 문항 위치: `LADDER_DIR` → 비공개 세트 폴더 옆의 `ladder/` (예: `../team14-heldout/ladder`). 없으면 확정 실행은 멈춘다(`--mock` 이어도). 사다리 없이 돌릴 수 있는 것은 `--explore` 뿐이다(`--explore --mock` 포함).
+- 확정 실행(실제 풀이자)은 `evolve/`, `content/briefs/`, `assets/data/quiz/` 에 커밋하지 않은 변경이 있거나, 읽은 사다리 문항의 해시가 `note_round.LADDER_SHA256` 과 다르면 시작하지 않는다. 리포트의 `freeze` 에 커밋·해시·모델·매개변수가 남는다.
+- 확정 실행은 실험마다 한 번이다. 실측 리포트가 이미 있으면 그 실행을 이어 돌리는 경우가 아닌 한 시작하지 않는다.
+- 풀이자가 빈 응답을 내거나 사용량 제한이 풀리지 않으면 그 단계를 저장하지 않고 멈춘다(빈 응답을 오답으로 채점하지 않는다). 잠시 뒤 같은 명령을 다시 실행하면 그 단계부터 한다.
+- 갈래는 한 프로세스에서 순서대로 돌린다. 같은 저장 위치에 두 프로세스를 동시에 돌리지 않는다.
 - 저장 지점은 `evolve/runs/<실험>-<주차>-…/` (gitignore). 다른 커밋으로 만든 저장 지점은 이어 쓰지 않는다.
 - 산출물: `evolve/reports/ladder-<실험>-<주차>.json`, `evolve/notes/<실험>/<갈래>/<주차>.json` (라운드별 노트).
 - 테스트: `python -m pytest tests/evolve` (가짜 문항만 쓴다. 비공개 세트를 읽지 않는다).

@@ -114,8 +114,9 @@ def _sign(x) -> str:
     return "작다" if x < 0 else ("크다" if x > 0 else "같다")
 
 
-def judge(boot: dict, n_pairs: int, exp: str) -> dict:
-    """사전 등록한 조건 그대로 판정한다 (설계 3.7). 3라운드 뒤의 주 분석 기준."""
+def judge(boot: dict, n_pairs: int, exp: str, h1_exp1: str | None = None) -> dict:
+    """사전 등록한 조건 그대로 판정한다 (설계 3.7). 3라운드 뒤의 주 분석 기준.
+    h1_exp1: 실험 2 를 판정할 때 실험 1 의 H1 결과. "확인"이 아니면 H3 를 판정하지 않는다."""
     h1 = _pos(boot["seen"]["O"]["lo"])
     if exp == "exp1":
         if not h1:
@@ -130,6 +131,11 @@ def judge(boot: dict, n_pairs: int, exp: str) -> dict:
     if exp == "exp2":
         less_o = _pos(boot["diff"]["seen+rev|seen+ce"]["O"]["lo"])
         d1 = boot["diff"]["seen+ce|seen+rev"]["d1"]["point"]
-        keeps = d1 is not None and d1 >= -1 / n_pairs          # Δ1 손실이 한 문항분 이내
-        return {"H3": "확인" if (less_o and keeps) else "확인 못 함", "H1_재현": "재현" if h1 else "재현 안 됨"}
+        # Δ1 손실이 한 문항분(1/n)을 "넘지" 않으면 된다. 점추정은 4자리로 반올림돼 있으므로 그 오차만큼 여유를 둔다
+        keeps = d1 is not None and d1 >= -1 / n_pairs - 5e-5
+        if h1_exp1 != "확인":
+            h3 = "판정 안 함"       # 도구가 오버피팅을 잡지 못했으면(실험 1 의 H1) 처치 효과를 판정하지 않는다
+        else:
+            h3 = "확인" if (less_o and keeps) else "확인 못 함"
+        return {"H3": h3, "H1_재현": "재현" if h1 else "재현 안 됨", "H1_실험1": h1_exp1 or "없음"}
     raise ValueError(exp)

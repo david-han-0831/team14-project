@@ -13,17 +13,27 @@ from pathlib import Path
 
 MAX_SENTENCES = 3
 
-# 문장 끝: 마침표·물음표·느낌표 뒤가 공백이거나 글의 끝일 때만 (0.893 같은 소수점은 끊지 않는다)
-_SENT_END = re.compile(r"[.?!](?=\s|$)")
+# 문장 끝: 마침표·물음표·느낌표 뒤가 공백·글의 끝·새 문장의 첫 글자일 때, 또는 줄바꿈 (0.893 같은 소수점은 끊지 않는다)
+_SENT_END = re.compile(r"[.?!](?=\s|$|[가-힣A-Z\"'(\[])|\n+")
+# 마침표가 붙지만 문장 끝이 아닌 약어 (Lin et al. 2026, e.g., p. 25)
+_ABBR = re.compile(r"\b(?:et al|e\.g|i\.e|vs|cf|Fig|pp?|No)\.", re.I)
 # 보기를 번호·위치로 가리키는 표현. "3번 풀어" 같은 횟수 표현은 걸리지 않게 뒤따르는 말을 본다
 _OPTION_REF = re.compile(
     r"[①②③④⑤]"
-    r"|[1-5]\s*번\s*(?:을|를|이|가|은|는)?\s*(?:보기|선택지|고른|고르|골라|정답|답이|답은|답을)"
+    r"|(?<!\d)[1-5]\s*번\s*(?:을|를|이|가|은|는)?\s*(?:보기|선택지|고른|고르|골라|선택|정답|답이|답은|답을|맞)"
     r"|(?:정답|답)\s*(?:은|이|는)?\s*[1-5]\s*번"
+    r"|(?:정답|답)\s*[:：]\s*[1-5](?![\d.])"
     r"|(?:보기|선택지)\s*[1-5](?!\d)"
     r"|(?:첫|두|세|네|다섯)\s*번째\s*(?:보기|선택지)"
+    r"|마지막\s*(?:보기|선택지)"
 )
-_ITEM_REF = re.compile(r"w\d\d[a-z]*-|문항\s*\d|\d+\s*번\s*문제|문제\s*\d+\s*번")
+# 문항을 번호·id 로 가리키는 표현. "문항 35개", "10번 문제없이" 같은 수량·횟수 표현은 걸리지 않게 한다
+_ITEM_REF = re.compile(
+    r"w\d\d[a-z]*-"
+    r"|문항\s*\d+(?!\d|\s*개|\s*중|\s*문)"
+    r"|\d+\s*번\s*(?:문제|문항)\s*(?:의|은|는|이|가|에서|에|처럼)"
+    r"|문제\s*\d+\s*번"
+)
 
 
 def new_notes(week: str, arm: str) -> dict:
@@ -36,7 +46,8 @@ def check_rule(rule: str) -> list[str]:
     if not rule:
         return ["empty"]
     why = []
-    if len([s for s in _SENT_END.split(rule) if s.strip()]) > MAX_SENTENCES:
+    plain = _ABBR.sub(lambda m: m.group(0).replace(".", ""), rule)
+    if len([s for s in _SENT_END.split(plain) if s.strip()]) > MAX_SENTENCES:
         why.append("too_long")
     if _OPTION_REF.search(rule):
         why.append("option_ref")

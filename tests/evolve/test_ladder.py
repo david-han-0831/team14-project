@@ -119,10 +119,10 @@ def test_judge_exp1_rules():
 def test_judge_exp2_needs_both_conditions():
     boot = {"seen": {"O": s(.3, .1, .5)},
             "diff": {"seen+rev|seen+ce": {"O": s(.15, .02, .3)}, "seen+ce|seen+rev": {"d1": s(-.10, -.2, 0)}}}
-    assert ladder.judge(boot, 18, "exp2") == {"H3": "확인 못 함", "H1_재현": "재현"}          # Δ1 손실이 1/18 보다 크다
+    assert ladder.judge(boot, 18, "exp2", h1_exp1="확인") == {"H3": "확인 못 함", "H1_재현": "재현", "H1_실험1": "확인"}          # Δ1 손실이 1/18 보다 크다
     boot["diff"]["seen+ce|seen+rev"]["d1"] = s(-.05, -.2, .1)
-    assert ladder.judge(boot, 18, "exp2")["H3"] == "확인"
+    assert ladder.judge(boot, 18, "exp2", h1_exp1="확인")["H3"] == "확인"
     boot["diff"]["seen+rev|seen+ce"]["O"] = s(.15, -.02, .3)
-    assert ladder.judge(boot, 18, "exp2")["H3"] == "확인 못 함"
+    assert ladder.judge(boot, 18, "exp2", h1_exp1="확인")["H3"] == "확인 못 함"
     boot["seen"]["O"] = s(.1, -.1, .3)
-    assert ladder.judge(boot, 18, "exp2")["H1_재현"] == "재현 안 됨"
+    assert ladder.judge(boot, 18, "exp2", h1_exp1="확인")["H1_재현"] == "재현 안 됨"

@@ -203,6 +203,10 @@ class Usage:
                 "usd": round(self.usd, 4), "by_model": {k: {"calls": v["calls"], "usd": round(v["usd"], 4)} for k, v in self.by_model.items()}}
 
 
+# 사용량·속도 제한으로 보는 오류 글. ("Failed to generate" 의 'rate' 같은 우연한 글자 겹침은 제외)
+_LIMIT_RE = re.compile(r"usage limit|rate.?limit|too many requests|overloaded|\b429\b|\b529\b", re.I)
+
+
 class LLM:
     """Claude 호출 래퍼. mock=True 면 API 없이 결정적 가짜 응답(파이프라인 검증용)."""
 
@@ -261,11 +265,18 @@ class LLM:
             if j and not j.get("is_error"):
                 u = j.get("usage") or {}
                 self.usage.add(model, int(u.get("input_tokens", 0)) + int(u.get("cache_read_input_tokens", 0)) + int(u.get("cache_creation_input_tokens", 0)), int(u.get("output_tokens", 0)))
-                return j.get("result", "") or ""
+                text = j.get("result", "") or ""
+                if text or attempt == 2:
+                    return text
+                time.sleep(5)      # 성공인데 글이 빈 응답: 일시적 문제로 보고 다시 시도한다
+                continue
             msg = (j.get("result") if j else "") or r.stderr.strip()[-300:] or r.stdout.strip()[-300:]
             if "Not logged in" in msg:
                 raise RuntimeError("Claude Code 가 로그인돼 있지 않습니다. 터미널에서 `claude` 실행 후 /login (구독 계정), CI 는 `claude setup-token` 으로 만든 CLAUDE_CODE_OAUTH_TOKEN.")
-            if "rate" in msg.lower() or "limit" in msg.lower() or "overloaded" in msg.lower():
+            if _LIMIT_RE.search(msg):
+                # 사용량 제한: 두 번 기다려 보고 그래도 같으면 멈춘다. 빈 답을 돌려주면 오답으로 채점돼 결과가 조용히 틀어진다
+                if attempt == 2:
+                    raise RuntimeError(f"사용량 제한으로 중단: {msg[:200]} (잠시 뒤 같은 명령을 다시 실행하면 저장 지점에서 이어 돕니다)")
                 time.sleep(60 * (attempt + 1))
                 continue
             if attempt == 2:

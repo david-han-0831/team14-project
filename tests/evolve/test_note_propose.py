@@ -81,7 +81,7 @@ def test_propose_with_broken_json_adds_nothing(scripted_llm):
 def test_propose_without_failures_makes_no_call(scripted_llm):
     llm = scripted_llm(lambda *a, **kw: "{}")
     out = np_.propose_entries("seen", "week09", [], notes.new_notes("week09", "seen"), llm, public_bank=[])
-    assert llm.calls == [] and out == {"added": [], "rejected": [], "raw_n": 0}
+    assert llm.calls == [] and out == {"added": [], "rejected": [], "raw_n": 0, "parse_failed": False}
 
 
 def test_concept_arm_applies_leak_check(scripted_llm):

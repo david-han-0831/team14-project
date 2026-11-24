@@ -75,8 +75,9 @@ def bootstrap_ci(values: list[float], n_boot: int = 2000, seed: int = 14) -> tup
 
 
 def run(args, llm: LLM | None = None, html_override: dict | None = None, patched: bool = False,
-        bank: list[dict] | None = None, context: str | None = None) -> dict:
-    """bank 를 주면 은행을 읽지 않고 그 문항들을 푼다. context 를 주면 모든 문항의 참고 글로 그것을 쓴다(노트 루프용)."""
+        bank: list[dict] | None = None, context: str | None = None, strict: bool = False) -> dict:
+    """bank 를 주면 은행을 읽지 않고 그 문항들을 푼다. context 를 주면 모든 문항의 참고 글로 그것을 쓴다(노트 루프용).
+    strict 이면 빈 응답에서 멈춘다(빈 응답은 풀이자의 오답이 아니라 호출 실패다. 오답으로 채점하면 결과가 조용히 틀어진다)."""
     weeks = args.weeks.split(",") if args.weeks else None
     if bank is None:
         bank = load_bank(args.bank, weeks)
@@ -98,6 +99,8 @@ def run(args, llm: LLM | None = None, html_override: dict | None = None, patched
         for i in range(args.k):
             text = llm.ask(args.model, SYSTEM, user, effort=args.effort,
                            mock_hint={"kind": "solve", "condition": args.condition, "q": q, "patched": patched})
+            if strict and not (text or "").strip():
+                raise RuntimeError(f"빈 응답: {q['id']} ({i + 1}/{args.k}번째 풀이). 이 단계는 저장하지 않습니다. 다시 실행하면 이 단계부터 합니다.")
             pred = parse_answer(text, q)
             attempts.append({"pred": pred, "correct": is_correct(q, pred)})
         n_ok = sum(a["correct"] for a in attempts)
@@ -121,6 +124,7 @@ def run(args, llm: LLM | None = None, html_override: dict | None = None, patched
         "acc_nonbasic": round(sum(hard) / len(hard), 4) if hard else None,
         "pass_at_k": round(sum(r["pass_at_k"] for r in results) / n, 4),
         "pass_hat_k": round(sum(r["pass_hat_k"] for r in results) / n, 4),
+        "unparsed": sum(1 for r in results for a in r["attempts"] if a["pred"] is None),     # 답을 읽지 못한 시도 수 (오답으로 채점됨)
         "by_week": {w: round(sum(r["acc"] for r in results if r["week"] == w) / max(1, sum(1 for r in results if r["week"] == w)), 4) for w in sorted({r["week"] for r in results})},
         "mock": args.mock, "elapsed_s": round(time.time() - t0, 1), "usage": llm.usage.to_dict(),
     }

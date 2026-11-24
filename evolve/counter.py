@@ -21,6 +21,8 @@ from solve import run as solve_run
 
 OVERLAP = 0.5        # 문장 3-gram 자카드. 이 값 이상이면 같은 문항으로 본다
 MIN_QUOTE = 6        # 브리프 인용의 최소 길이(공백 제외)
+CE_PASSES = 2        # 라운드당 반례 처치 횟수 (2회차는 고친 항목에만)
+VALIDATE_K = 2       # 거르는 풀이자가 맞혀야 하는 횟수
 
 GEN_SYSTEM = (
     "당신은 대학원 '최신딥러닝이론및응용' 수업의 출제자입니다. 학생의 학습 노트에 적힌 규칙 하나가 주어집니다. "
@@ -74,9 +76,10 @@ def generate(entry: dict, brief: str, llm, week: str, ce_id: str) -> dict | None
             "이 규칙만 믿는 학생이 틀리게 되는 객관식 문제 하나를 JSON 으로만 답합니다.")
     obj = _json(llm.ask(STRONG_MODEL, GEN_SYSTEM, user, effort="high", max_tokens=4000,
                         mock_hint={"kind": "ce_generate", "entry_id": entry["id"], "quote": brief.strip()[:40]}))
-    if not obj:
+    raw_opts = (obj or {}).get("options")
+    if not obj or not isinstance(raw_opts, list) or not all(isinstance(o, str) for o in raw_opts):
         return None
-    opts = [str(o).strip() for o in (obj.get("options") or [])]
+    opts = [o.strip() for o in raw_opts]
     ans, trap = str(obj.get("answer_text") or "").strip(), str(obj.get("trap_text") or "").strip()
     if not str(obj.get("q") or "").strip() or opts.count(ans) != 1 or opts.count(trap) != 1:
         return None
@@ -121,11 +124,11 @@ def _ns(model: str, k: int, condition: str, week: str):
     return SimpleNamespace(bank="counterexample", weeks=week, condition=condition, k=k, model=model, effort="low", limit=0, out="", mock=False)
 
 
-def validate(ces: list[dict], brief: str, llm, k: int = 2) -> list[dict]:
+def validate(ces: list[dict], brief: str, llm, k: int = VALIDATE_K) -> list[dict]:
     """브리프를 본 풀이자가 k 회 모두 맞힌 반례만 남긴다. 못 맞히면 문항 결함으로 본다."""
     if not ces:
         return []
-    run = solve_run(_ns(MID_MODEL, k, "brief", ces[0]["week"]), llm, bank=ces, context=brief)
+    run = solve_run(_ns(MID_MODEL, k, "brief", ces[0]["week"]), llm, bank=ces, context=brief, strict=True)
     ok = {r["id"] for r in run["results"] if r["acc"] == 1}
     return [ce for ce in ces if ce["id"] in ok]
 
@@ -135,7 +138,7 @@ def probe(ces: list[dict], notes_txt: str, llm, k: int = 3) -> list[dict]:
     """풀이자가 노트만 보고 반례를 푼 결과. trap_rate = 함정 보기를 고른 비율."""
     if not ces:
         return []
-    run = solve_run(_ns(WEAK_MODEL, k, "notes", ces[0]["week"]), llm, patched=bool(notes_txt), bank=ces, context=notes_txt)
+    run = solve_run(_ns(WEAK_MODEL, k, "notes", ces[0]["week"]), llm, patched=bool(notes_txt), bank=ces, context=notes_txt, strict=True)
     by = {r["id"]: r for r in run["results"]}
     return [{"id": ce["id"], "entry_id": ce["entry_id"], "acc": by[ce["id"]]["acc"],
              "trap_rate": sum(1 for a in by[ce["id"]]["attempts"] if a["pred"] == ce["trap"]) / k} for ce in ces]
@@ -149,7 +152,8 @@ def revise(entry: dict, ce: dict | None, brief: str, llm) -> dict:
         others = [o for i, o in enumerate(ce["options"]) if i not in (ce["answer"], ce["trap"])]
         head += ("[이 항목만 믿고 풀면 틀리는 반례 문제]\n"
                  f"문제: {ce['q']}\n보기: {' / '.join(ce['options'])}\n옳은 보기의 내용: {ce['options'][ce['answer']]}\n"
-                 f"노트를 본 학생이 고른 보기: {ce['options'][ce['trap']]}\n나머지 보기: {' / '.join(others)}\n\n")
+                 f"이 항목의 규칙만 믿으면 고르게 되는 보기: {ce['options'][ce['trap']]}\n나머지 보기: {' / '.join(others)}\n"
+                 "노트만 본 학생은 이 문제를 틀렸습니다.\n\n")
         ask = "위 반례에서도 틀리지 않도록 이 노트 항목을 고쳐 쓰세요."
     else:
         ask = "이 노트 항목을 브리프에 비추어 더 정확하고 일반적으로 고쳐 쓰세요."
@@ -185,10 +189,11 @@ def _apply(notes: dict, entry_id: str, out: dict, origin: str, round_no: int, ac
 
 
 def treat_ce(notes: dict, new_ids: list[str], brief: str, llm, public_bank: list[dict], ladder_bank: list[dict],
-             week: str, round_no: int = 0, passes: int = 2) -> dict:
+             week: str, round_no: int = 0, passes: int = CE_PASSES) -> dict:
     """이번 라운드에 생긴 항목(new_ids)에 반례 처치를 한다. 노트를 그 자리에서 고친다."""
     acc = {"generated": 0, "passed": 0, "overlap": {"dropped": 0, "max": None, "checked": bool(ladder_bank)},
-           "trap_rate": [], "retest_acc": [], "revise_calls": 0, "revised": [], "deleted": [], "rejected_rewrites": 0, "ces": []}
+           "trap_rate": [], "retest_acc": [], "revise_calls": 0, "revised": [], "deleted": [], "rejected_rewrites": 0,
+           "dropped": [], "ces": []}      # dropped: 걸러진 반례의 항목과 사유(문항 글은 남기지 않는다)
     targets = list(new_ids)
     for p in range(1, passes + 1):
         targets = [i for i in targets if _entry(notes, i) is not None]
@@ -198,13 +203,18 @@ def treat_ce(notes: dict, new_ids: list[str], brief: str, llm, public_bank: list
         for eid in targets:
             acc["generated"] += 1
             ce = generate(_entry(notes, eid), brief, llm, week, f"ce-{eid}-{round_no}-{p}")
-            if ce is not None and not mechanical_check(ce, brief, public_bank):
+            why = ["parse"] if ce is None else mechanical_check(ce, brief, public_bank)
+            if why:
+                acc["dropped"].append({"entry_id": eid, "why": why})
+            else:
                 ces.append(ce)
-        ces, ov = overlap_drop(ces, ladder_bank)
+        kept, ov = overlap_drop(ces, ladder_bank)
+        acc["dropped"] += [{"entry_id": c["entry_id"], "why": ["overlap"]} for c in ces if c not in kept]
         acc["overlap"]["dropped"] += ov["dropped"]
         if ov["max"] is not None:
             acc["overlap"]["max"] = max(acc["overlap"]["max"] or 0.0, ov["max"])
-        ces = validate(ces, brief, llm)
+        ces = validate(kept, brief, llm)
+        acc["dropped"] += [{"entry_id": c["entry_id"], "why": ["validator"]} for c in kept if c not in ces]
         acc["passed"] += len(ces)
         acc["ces"] += ces
         if not ces:
@@ -230,9 +240,11 @@ def treat_ce(notes: dict, new_ids: list[str], brief: str, llm, public_bank: list
 
 
 def treat_rev(notes: dict, new_ids: list[str], budget: int, brief: str, llm, round_no: int = 0) -> dict:
-    """대조군: 반례 없이 고쳐 쓰기만 budget 번 한다(새 항목부터, 모자라면 다시 돈다)."""
-    acc = {"revise_calls": 0, "revised": [], "deleted": [], "rejected_rewrites": 0}
+    """대조군: 반례 없이 고쳐 쓰기만 budget 번 한다. 이번 라운드의 새 항목부터, 모자라면 이전 항목(최근 것부터)으로 넘어가고,
+    그래도 남으면 처음부터 다시 돈다. 노트가 비어 예산을 못 쓰면 unspent 에 남긴다."""
+    acc = {"revise_calls": 0, "revised": [], "deleted": [], "rejected_rewrites": 0, "budget": budget, "unspent": 0}
     ids = [i for i in new_ids if _entry(notes, i) is not None]
+    ids += [e["id"] for e in reversed(notes["entries"]) if e["id"] not in ids]
     i = 0
     while acc["revise_calls"] < budget and ids:
         eid = ids[i % len(ids)]
@@ -242,4 +254,5 @@ def treat_rev(notes: dict, new_ids: list[str], budget: int, brief: str, llm, rou
             ids.remove(eid)
         else:
             i += 1
+    acc["unspent"] = budget - acc["revise_calls"]
     return acc
