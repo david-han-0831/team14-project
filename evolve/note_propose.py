@@ -54,6 +54,10 @@ def build_user(arm: str, week: str, failed: list[dict], notes: dict, brief: str)
     return (f"[주차] {week}\n\n[지금의 학습 노트]\n{cur}\n\n{body}\n\n[강의 브리프]\n{brief}\n\n{ask} JSON 으로만 답합니다.")
 
 
+def _norm(rule: str) -> str:
+    return re.sub(r"\s+", "", rule)
+
+
 def parse_entries(text: str) -> list[dict]:
     m = re.search(r"\{.*\}", text or "", re.S)
     if not m:
@@ -84,6 +88,8 @@ def propose_entries(arm: str, week: str, failed: list[dict], notes: dict, llm, p
             why = ["no_sources"]
         else:
             why = check_rule(rule)
+            if not why and _norm(rule) in {_norm(x["rule"]) for x in notes["entries"]}:
+                why = ["duplicate"]
             if not why and arm == "concept" and leakage([{"week": week, "card_id": "note", "title": "", "pro": rule, "easy": ""}], public_bank):
                 why = ["leak"]     # 개념만 보는 갈래는 기출 문장을 베낄 수 없다 (페이지 루프와 같은 검사)
         if not why and len(added) >= max_new:

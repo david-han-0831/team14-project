@@ -103,3 +103,13 @@ def test_mock_llm_produces_a_valid_entry():
     n = notes.new_notes("week09", "seen")
     out = np_.propose_entries("seen", "week09", fake_items(1, "p"), n, common.LLM(mock=True), public_bank=[])
     assert len(out["added"]) == 1
+
+
+def test_duplicate_of_existing_rule_is_rejected(scripted_llm):
+    n = notes.new_notes("week09", "seen")
+    notes.add_entry(n, "c", "이미 있는 규칙이다.", ["s"], "public-fail", 1)
+    llm = scripted_llm(lambda *a, **kw: _payload([{"concept": "c", "rule": "이미 있는  규칙이다.", "sources": ["s"]}, {"concept": "c", "rule": "새 규칙이다.", "sources": ["s"]},
+                                                  {"concept": "c", "rule": "새 규칙이다.", "sources": ["s"]}]))
+    out = np_.propose_entries("seen", "week09", fake_items(1, "p"), n, llm, public_bank=[], round_no=2)
+    assert [e["rule"] for e in out["added"]] == ["새 규칙이다."]
+    assert [r["why"] for r in out["rejected"]] == [["duplicate"], ["duplicate"]]
