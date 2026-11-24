@@ -16,7 +16,7 @@ import re
 from types import SimpleNamespace
 
 from common import MID_MODEL, STRONG_MODEL, WEAK_MODEL
-from notes import delete_entry, notes_text, revise_entry
+from notes import check_rule, delete_entry, notes_text, revise_entry
 from solve import run as solve_run
 
 OVERLAP = 0.5        # 문장 3-gram 자카드. 이 값 이상이면 같은 문항으로 본다
@@ -145,8 +145,14 @@ def probe(ces: list[dict], notes_txt: str, llm, k: int = 3) -> list[dict]:
 
 
 # ---------------------------------------------------------------- ④ 고치기
-def revise(entry: dict, ce: dict | None, brief: str, llm) -> dict:
-    """항목을 고쳐 쓴다. ce 가 None 이면 근거 문항 없이 브리프만 보고 고친다(대조군)."""
+# 고쳐 쓴 규칙이 항목 제약을 어겼을 때 다시 쓰라고 알려 주는 말
+_WHY_TEXT = {"too_long": "문장이 3개를 넘었습니다. 3문장 이하로 줄여야 합니다(한 문장에 여러 내용을 담아도 됩니다)",
+             "option_ref": "보기의 번호나 위치를 가리켰습니다", "item_ref": "문제 번호를 가리켰습니다", "empty": "규칙이 비어 있습니다"}
+
+
+def revise(entry: dict, ce: dict | None, brief: str, llm, feedback: dict | None = None) -> dict:
+    """항목을 고쳐 쓴다. ce 가 None 이면 근거 문항 없이 브리프만 보고 고친다(대조군).
+    feedback = {"rule": 앞서 낸 규칙, "why": [위반 사유]} 를 주면 그 사유를 알려 주고 다시 쓰게 한다."""
     head = f"[노트 항목]\n({entry['concept']}) {entry['rule']}\n\n"
     if ce is not None:
         others = [o for i, o in enumerate(ce["options"]) if i not in (ce["answer"], ce["trap"])]
@@ -157,6 +163,9 @@ def revise(entry: dict, ce: dict | None, brief: str, llm) -> dict:
         ask = "위 반례에서도 틀리지 않도록 이 노트 항목을 고쳐 쓰세요."
     else:
         ask = "이 노트 항목을 브리프에 비추어 더 정확하고 일반적으로 고쳐 쓰세요."
+    if feedback:
+        ask += (f"\n\n[앞서 낸 고친 규칙은 버려졌습니다]\n{feedback['rule']}\n버려진 이유: "
+                + "; ".join(_WHY_TEXT.get(w, w) for w in feedback["why"]) + ".\n같은 뜻을 지키되 이 제약을 지켜 다시 쓰세요.")
     obj = _json(llm.ask(STRONG_MODEL, REVISE_SYSTEM, head + f"[강의 브리프]\n{brief}\n\n{ask} JSON 으로만 답합니다.", effort="high", max_tokens=3000,
                         mock_hint={"kind": "revise", "entry_id": entry["id"]})) or {}
     action = obj.get("action")
@@ -168,6 +177,17 @@ def revise(entry: dict, ce: dict | None, brief: str, llm) -> dict:
     return {"action": "keep", "rule": None}
 
 
+def _revise_and_apply(notes: dict, entry_id: str, ce: dict | None, brief: str, llm, origin: str, round_no: int, acc: dict) -> bool:
+    """항목 하나를 고쳐 쓰고 노트에 반영한다. 고친 규칙이 제약을 어기면 사유를 알려 주고 한 번만 다시 쓰게 한다. 바뀌었으면 True."""
+    entry = _entry(notes, entry_id)
+    out = revise(entry, ce, brief, llm)
+    why = check_rule(out["rule"]) if out["action"] == "rewrite" else []
+    if why:
+        acc["retries"] += 1
+        out = revise(entry, ce, brief, llm, feedback={"rule": out["rule"], "why": why})
+    return _apply(notes, entry_id, out, origin, round_no, acc)
+
+
 def _apply(notes: dict, entry_id: str, out: dict, origin: str, round_no: int, acc: dict) -> bool:
     """고쳐 쓰기 결과를 노트에 반영한다. 항목이 바뀌었으면 True."""
     if out["action"] == "delete":
@@ -177,11 +197,12 @@ def _apply(notes: dict, entry_id: str, out: dict, origin: str, round_no: int, ac
             acc["revised"].remove(entry_id)
         return False
     if out["action"] == "rewrite":
-        try:
-            revise_entry(notes, entry_id, out["rule"], origin, round_no)
-        except ValueError:
-            acc["rejected_rewrites"] += 1      # 항목 제약을 어긴 고쳐 쓰기는 버리고 원래 항목을 둔다
+        why = check_rule(out["rule"])
+        if why:      # 다시 쓰게 했는데도 제약을 어긴 고쳐 쓰기는 버리고 원래 항목을 둔다
+            acc["rejected_rewrites"] += 1
+            acc["rejected_reasons"].append({"entry_id": entry_id, "why": why})
             return False
+        revise_entry(notes, entry_id, out["rule"], origin, round_no)
         if entry_id not in acc["revised"]:
             acc["revised"].append(entry_id)
         return True
@@ -192,8 +213,8 @@ def treat_ce(notes: dict, new_ids: list[str], brief: str, llm, public_bank: list
              week: str, round_no: int = 0, passes: int = CE_PASSES) -> dict:
     """이번 라운드에 생긴 항목(new_ids)에 반례 처치를 한다. 노트를 그 자리에서 고친다."""
     acc = {"generated": 0, "passed": 0, "overlap": {"dropped": 0, "max": None, "checked": bool(ladder_bank)},
-           "trap_rate": [], "retest_acc": [], "revise_calls": 0, "revised": [], "deleted": [], "rejected_rewrites": 0,
-           "dropped": [], "ces": []}      # dropped: 걸러진 반례의 항목과 사유(문항 글은 남기지 않는다)
+           "trap_rate": [], "retest_acc": [], "revise_calls": 0, "retries": 0, "revised": [], "deleted": [], "rejected_rewrites": 0,
+           "rejected_reasons": [], "dropped": [], "ces": []}      # dropped: 걸러진 반례의 항목과 사유(문항 글은 남기지 않는다)
     targets = list(new_ids)
     for p in range(1, passes + 1):
         targets = [i for i in targets if _entry(notes, i) is not None]
@@ -228,7 +249,7 @@ def treat_ce(notes: dict, new_ids: list[str], brief: str, llm, public_bank: list
             if row["acc"] == 1 or _entry(notes, ce["entry_id"]) is None:
                 continue
             acc["revise_calls"] += 1
-            if _apply(notes, ce["entry_id"], revise(_entry(notes, ce["entry_id"]), ce, brief, llm), "counterexample", round_no, acc):
+            if _revise_and_apply(notes, ce["entry_id"], ce, brief, llm, "counterexample", round_no, acc):
                 changed.append(ce)
         if changed:      # 점검 값: 고친 뒤 같은 반례를 다시 풀린다. 효과의 증거로 쓰지 않는다
             again = probe(changed, notes_text(notes), llm)
@@ -242,14 +263,14 @@ def treat_ce(notes: dict, new_ids: list[str], brief: str, llm, public_bank: list
 def treat_rev(notes: dict, new_ids: list[str], budget: int, brief: str, llm, round_no: int = 0) -> dict:
     """대조군: 반례 없이 고쳐 쓰기만 budget 번 한다. 이번 라운드의 새 항목부터, 모자라면 이전 항목(최근 것부터)으로 넘어가고,
     그래도 남으면 처음부터 다시 돈다. 노트가 비어 예산을 못 쓰면 unspent 에 남긴다."""
-    acc = {"revise_calls": 0, "revised": [], "deleted": [], "rejected_rewrites": 0, "budget": budget, "unspent": 0}
+    acc = {"revise_calls": 0, "retries": 0, "revised": [], "deleted": [], "rejected_rewrites": 0, "rejected_reasons": [], "budget": budget, "unspent": 0}
     ids = [i for i in new_ids if _entry(notes, i) is not None]
     ids += [e["id"] for e in reversed(notes["entries"]) if e["id"] not in ids]
     i = 0
     while acc["revise_calls"] < budget and ids:
         eid = ids[i % len(ids)]
         acc["revise_calls"] += 1
-        _apply(notes, eid, revise(_entry(notes, eid), None, brief, llm), "revise", round_no, acc)
+        _revise_and_apply(notes, eid, None, brief, llm, "revise", round_no, acc)
         if _entry(notes, eid) is None:
             ids.remove(eid)
         else:

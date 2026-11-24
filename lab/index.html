@@ -214,7 +214,7 @@
     function renderLadder(r) {
       var box = h("div", "round card ladder");
       var expName = { exp1: "실험 1", exp2: "실험 2" }[r.exp] || r.exp;
-      box.appendChild(h("h3", null, "전이 사다리 · " + expName + " · " + r.week + " · " + r.date + (r.mock ? ' <span class="pill todo">mock (가짜 풀이자)</span>' : ' <span class="pill ok">확정 실행</span>')));
+      box.appendChild(h("h3", null, "전이 사다리 · " + expName + " · " + r.week + " · " + r.date + (r.mock ? ' <span class="pill todo">mock (가짜 풀이자)</span>' : (r.judge && r.judge.H3 === "판정 안 함" ? ' <span class="pill">동결 실행 · 탐색적</span>' : ' <span class="pill ok">확정 실행</span>'))));
       box.appendChild(h("p", "small", "기준선(빈 노트) 정답률: 1단 기출 " + pct(r.baseline.T1) + " · 2단 바꿔 쓴 기출 " + pct(r.baseline.T2) + " · 3단 다른 측면 " + pct(r.baseline.T3) +
         " <span class=\"muted\">(문항 " + r.n.T1 + " / " + r.n.T2 + " / " + r.n.T3 + ", 문항당 " + r.k + "회, " + r.rounds + "라운드 뒤)</span>"));
       var arms = Object.keys(r.arms);
@@ -235,6 +235,7 @@
         }).join("");
         box.appendChild(h("p", "verdicts", v));
       } else box.appendChild(h("p", "small muted", "일부 갈래만 돌린 실행이라 판정하지 않았습니다."));
+      if (r.judge && r.judge.H3 === "판정 안 함") box.appendChild(h("div", "callout", "<b>탐색적 결과입니다.</b> 사전 등록에 따라, 실험 1 에서 H1(오버피팅이 잡히는가)이 확인되지 않으면 H3(반례 처치의 효과)는 판정하지 않습니다. 아래 수치는 방향만 보기 위한 것이며 \"반례가 오버피팅을 줄였다/못 줄였다\"의 근거로 쓰지 않습니다."));
       // 판정에 쓴 통계를 그대로 보여 준다 (확인 못 함이어도 방향과 구간을 숨기지 않는다)
       function ci(st) { return !st || st.point == null ? "–" : pp(st.point) + (st.lo == null ? "" : " [" + pp(st.lo) + ", " + pp(st.hi) + "]"); }
       var used = [], B = r.boot, D = (r.boot || {}).diff || {};
