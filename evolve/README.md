@@ -11,6 +11,10 @@ evolve/verify.py       유출(문제 문장 베끼기) 검사 · HTML 짝 검사
 evolve/round.py        한 라운드 오케스트레이션 → evolve/reports/round-NN.json (→ PR)
 evolve/experiments.py  행동 실험 E1(effort) · E2(pass@k) · E3(하네스 효과)
 evolve/retro.py        사후 분해: 이미 머지된 라운드의 패치를 비공개 세트까지 써서 다시 잰다
+evolve/notes.py        학습 노트(루프가 고쳐 쓰는 규칙 목록)와 항목 제약
+evolve/note_propose.py 노트 제안자 (갈래마다 보는 것이 다름)
+evolve/ladder.py       전이 사다리 분해 · 공동 부트스트랩 · 가설 판정
+evolve/note_round.py   노트 루프 실험 실행 (탐색/확정, 저장 지점에서 이어 돌리기)
 ```
 
 ## 준비 — 두 가지 백엔드
@@ -69,6 +73,35 @@ GitHub Actions 에서 구독으로 돌리려면: 로컬에서 `claude setup-toke
 환경 변수: `EVOLVE_WEAK_MODEL`(기본 claude-haiku-5-5), `EVOLVE_STRONG_MODEL`(기본 claude-opus-5-5), `EVOLVE_MAX_USD`(기본 5).
 
 `--bare` 로 "Not logged in" 이 나는 PC(키체인 대신 앱 로그인만 된 Windows 등)에서는 `EVOLVE_CLI_ISOLATION=--safe-mode` 를 붙여 실행합니다. CLAUDE.md·스킬·플러그인·훅·MCP 는 꺼지고 구독 로그인은 그대로 쓰입니다. 리포트의 `cli_isolation` 에 어떤 옵션으로 돌렸는지 남습니다.
+
+## 노트 루프와 전이 사다리 (교수님 피드백 대응)
+
+페이지 전체를 주면 풀이자가 이미 95~100% 를 맞혀 오버피팅을 볼 수 없다. 그래서 풀이자에게 **루프가 쓴 학습 노트만** 주는 루프를 따로 두고, 향상을 세 단으로 잰다. 설계: `docs/superpowers/specs/2026-11-24-transfer-ladder-counterexample-design.md`, 사전 등록: 실험실 페이지 0-2.
+
+| 단 | 문항 | 위치 |
+|---|---|---|
+| 1단 기출 | 공개 세트 그대로 | `assets/data/quiz/` |
+| 2단 바꿔 쓴 기출 | 같은 사실·같은 정답, 표현만 다름. 기출과 1:1 짝 | 비공개 `ladder/` |
+| 3단 다른 측면 | 같은 개념의 다른 사실·사례 | 비공개 `ladder/` |
+
+`O_암기 = Δ1 − Δ2`, `O_측면 = Δ2 − Δ3`, `G = Δ3`. 기존 O 를 둘로 나눈 것이다.
+
+```bash
+# 탐색 실행: 프롬프트를 다듬을 때. 기출만 푼다. 사다리는 읽지도 풀지도 않고 리포트도 남기지 않는다
+EVOLVE_CLI_ISOLATION=--safe-mode EVOLVE_MAX_USD=25 .venv/bin/python evolve/note_round.py --exp exp1 --week week09 --explore --tag try1
+
+# 확정 실행: evolve/ 를 커밋(동결)한 뒤 한 번. 가설 판정은 이것으로만 한다. 끊기면 같은 명령을 다시 실행하면 이어서 돈다
+EVOLVE_CLI_ISOLATION=--safe-mode EVOLVE_MAX_USD=25 .venv/bin/python evolve/note_round.py --exp exp1 --week week09
+
+# 가짜 풀이자로 형식만 확인 (산출물 이름에 -mock 이 붙는다. 커밋하지 않는다)
+.venv/bin/python evolve/note_round.py --exp exp1 --week week09 --mock
+```
+
+- 사다리 문항 위치: `LADDER_DIR` → 비공개 세트 폴더 옆의 `ladder/` (예: `../team14-heldout/ladder`). 없으면 확정 실행은 멈추고 탐색·mock 만 된다.
+- 확정 실행은 `evolve/` 아래에 커밋하지 않은 변경이 있으면 시작하지 않는다. 리포트의 `freeze` 에 커밋과 사다리 문항 해시가 남는다.
+- 저장 지점은 `evolve/runs/<실험>-<주차>-…/` (gitignore). 다른 커밋으로 만든 저장 지점은 이어 쓰지 않는다.
+- 산출물: `evolve/reports/ladder-<실험>-<주차>.json`, `evolve/notes/<실험>/<갈래>/<주차>.json` (라운드별 노트).
+- 테스트: `python -m pytest tests/evolve` (가짜 문항만 쓴다. 비공개 세트를 읽지 않는다).
 
 ## 보상과 분해
 

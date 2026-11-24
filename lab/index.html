@@ -20,6 +20,12 @@
     .round h3 { margin: 0 0 6px; }
     .prereg td:first-child { white-space: nowrap; font-weight: 600; }
     .legend span { display: inline-block; margin-right: 12px; font-size: .82rem; color: var(--muted); }
+    .ladder table { width: 100%; font-size: .88rem; }
+    .ladder td, .ladder th { text-align: right; white-space: nowrap; padding: 6px 8px; }
+    .ladder td:first-child, .ladder th:first-child { text-align: left; }
+    .ladder .ci { display: block; color: var(--muted); font-size: .74rem; font-family: var(--mono); }
+    .ladder .faint { opacity: .45; }
+    .verdicts .pill { margin-right: 6px; }
     .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
   </style>
 </head>
@@ -47,10 +53,33 @@
       </table>
     </div>
 
+    <h3 id="prereg-ladder">0-2. 전이 사다리 실험의 사전 등록 <span class="pill">게시 2026-11-24 · 확정 실행 전</span></h3>
+    <div class="card">
+      <div data-level="pro"><p>교수님 피드백(오버피팅을 교육 도메인에 맞게 더 쪼갠다 / 메모리 규칙의 반례 문항으로 오버피팅을 줄인다)에 대한 실험이다. 풀이자에게 사이트 페이지 대신 <b>루프가 쓴 학습 노트만</b> 준다. 페이지 전체를 주면 이미 95~100% 를 맞혀 오버피팅을 볼 여유가 없기 때문이다. 아래 내용은 결과를 보기 전에 고정했다.</p></div>
+      <div data-level="easy"><p>기출 문제로 만든 요약 노트(족보)만 보고 공부한 학생을 생각하면 돼요. 기출은 잘 풀게 되는데, 문장만 바꾼 문제나 같은 개념의 다른 부분을 물으면 어떨까요? 그 차이로 "외운 것"과 "한쪽만 배운 것"을 나눠 재요.</p></div>
+      <table class="prereg">
+        <tr><td>평가 세 단</td><td>1단 기출 그대로 · 2단 바꿔 쓴 기출(같은 사실·같은 정답, 문장과 보기 표현·순서만 다름, 기출과 1:1 짝) · 3단 같은 개념의 다른 측면. 2·3단 문항은 비공개이며 제안자·반례 출제자에게 보이지 않는다.</td></tr>
+        <tr><td>분해</td><td><code>Δk</code> = 3라운드 뒤 정답률 − 빈 노트 정답률 (k단). <code>O_암기 = Δ1 − Δ2</code>, <code>O_측면 = Δ2 − Δ3</code>, <code>G = Δ3</code>, <code>Δ1 = O_암기 + O_측면 + G</code>. 기존 O 를 둘로 나눈 것이다(<code>O = O_암기 + O_측면</code>).</td></tr>
+        <tr><td>갈래</td><td><b>기출을 봄</b>: 제안자가 틀린 기출의 문제·보기·정답을 본다(양성 대조군) · <b>개념만 봄</b>: 개념 이름만 본다(지금 페이지 루프의 규칙) · <b>기출 + 반례</b>: 노트 규칙대로 풀면 틀리는 반례 문항으로 노트를 고친다(교수님 제안) · <b>기출 + 고쳐 쓰기</b>: 반례 없이 같은 수만큼 고친다(대조군)</td></tr>
+        <tr><td>H1 도구 검증</td><td>기출을 본 갈래에서 오버피팅이 보인다. 확인 조건: <code>Δ1 − Δ3</code> 의 95% 구간 하한 &gt; 0</td></tr>
+        <tr><td>H2 종류</td><td>기출을 본 갈래에서 <code>O_측면 &gt; O_암기</code>. 확인 조건: 차이의 구간 하한 &gt; 0 이고 정규화 향상으로 본 보조 분석도 같은 방향. 아니면 "구분 못 함". H1 이 확인되지 않으면 판정하지 않는다.</td></tr>
+        <tr><td>H3 처치</td><td>반례가 오버피팅을 줄인다. 확인 조건: <code>O(기출+고쳐 쓰기) − O(기출+반례)</code> 의 구간 하한 &gt; 0 이고, 반례 갈래의 <code>Δ1</code> 이 대조군보다 한 문항분(1/n) 넘게 낮지 않다.</td></tr>
+        <tr><td>H4 정보 차단</td><td>개념만 본 갈래는 기출을 본 갈래보다 O 도 <code>Δ1</code> 도 작다. 방향만 본다(탐색적).</td></tr>
+        <tr><td>어느 실행이 무엇을</td><td>실험 1(기출을 봄, 개념만 봄) → H1·H2·H4. 실험 2(기출을 봄, 기출+반례, 기출+고쳐 쓰기) → H3 만. 10주차는 따로 판정하는 반복 실험.</td></tr>
+        <tr><td>동결</td><td>프롬프트와 코드(커밋), 풀이자 claude-haiku-5-5, 라운드 3, 문항당 3회, 라운드당 새 항목 5개 이하, 판정 시점 3라운드 뒤, 사다리 문항 집합(해시), 부트스트랩 1만 번·시드 14(1·2단은 짝 번호를 함께, 3단은 따로 뽑는 한 번의 추출). 프롬프트는 기출만 푸는 탐색 실행으로 다듬고, 사다리 2·3단은 동결 뒤 확정 실행에서 처음 푼다.</td></tr>
+        <tr><td>한계 (미리 적어 둠)</td><td>9주차 한 주차, 단마다 18~20여 문항이라 큰 차이만 구분된다. 구간은 문항 표본의 우연만 담고, 같은 루프를 다시 돌릴 때의 차이는 담지 않는다. 학습자는 LLM 이다. 노트 항목에 "보기 번호·문항 번호 금지, 3문장 이하" 제약을 걸었고 이것은 O_암기 를 낮추는 쪽으로 작용한다. H3 는 "확인 못 함"으로 끝날 가능성이 높다.</td></tr>
+      </table>
+      <p class="small muted">설계 문서: <a href="https://github.com/wukong-daima/team14-project/blob/main/docs/superpowers/specs/2026-11-24-transfer-ladder-counterexample-design.md">전이 사다리와 반례 처치 설계</a></p>
+    </div>
+
     <h2 id="rounds">1. 라운드</h2>
     <div id="rounds-box"><div class="empty">아직 실행된 라운드가 없습니다. <code>python evolve/round.py --weeks week02,week04,week08</code> 을 실행하면 여기에 나타납니다.</div></div>
 
-    <h2 id="exps">2. 행동 실험 (Claude 와 수업 방식 비교)</h2>
+    <h2 id="ladder">2. 전이 사다리 (노트 루프)</h2>
+    <p class="small muted">풀이자가 루프가 쓴 학습 노트만 보고 푼다. 판정은 <a href="#prereg-ladder">사전 등록</a>한 조건 그대로이며, 구간이 0 을 포함하는 성분은 흐리게 그린다.</p>
+    <div id="ladder-box"><div class="empty">아직 확정 실행 전입니다. 사전 등록만 게시된 상태입니다.</div></div>
+
+    <h2 id="exps">3. 행동 실험 (Claude 와 수업 방식 비교)</h2>
     <p class="small muted">E3 자료 없음/브리프/페이지 조건 정답률 · E2 pass@k vs pass^k · E1 effort(테스트타임 스케일링). 해석은 공개 문서 범위에서만 합니다.</p>
     <div id="exps-box"><div class="empty">아직 실험 결과가 없습니다. <code>python evolve/experiments.py e3 --weeks week02,week04,week08</code></div></div>
 
@@ -149,6 +178,75 @@
       return box;
     }
 
+    var ARM_LABEL = { "seen": "기출을 봄", "concept": "개념만 봄", "seen+ce": "기출 + 반례", "seen+rev": "기출 + 고쳐 쓰기" };
+    function pp(x) { return x == null ? "–" : (x >= 0 ? "+" : "−") + Math.abs(x * 100).toFixed(1) + "%p"; }
+    function ciCell(st) {
+      if (!st || st.point == null) return "<td>–</td>";
+      var zero = st.lo == null || (st.lo <= 0 && st.hi >= 0);
+      return '<td class="' + (zero ? "faint" : "") + '">' + pp(st.point) + '<span class="ci">' + (st.lo == null ? "구간 없음" : "[" + pp(st.lo) + ", " + pp(st.hi) + "]") + "</span></td>";
+    }
+    // 한 갈래의 분해: O_암기 / O_측면 / G 를 각각 0 에서 뻗는 막대로, 95% 구간은 가는 선으로. 구간이 0 을 포함하면 흐리게
+    function ladderBars(label, b) {
+      var rows = [["O_암기", b.O_mem, "var(--danger)"], ["O_측면", b.O_facet, "var(--warn)"], ["G", b.G, "var(--ok)"]];
+      var svg = el("svg", { viewBox: "0 0 700 " + (rows.length * 24 + 34) });
+      var x0 = 230, W = 380, lo = -0.4, hi = 1.0, scale = W / (hi - lo), zero = x0 - lo * scale;
+      function X(v) { return x0 + (Math.max(lo, Math.min(hi, v)) - lo) * scale; }
+      svg.appendChild(el("text", { x: 8, y: 22, "font-weight": 600 }, label));
+      svg.appendChild(el("line", { x1: zero, y1: 4, x2: zero, y2: rows.length * 24 + 6, stroke: "currentColor", "stroke-opacity": .4 }));
+      rows.forEach(function (r, i) {
+        var st = r[1], y = 6 + i * 24;
+        svg.appendChild(el("text", { x: 150, y: y + 14 }, r[0]));
+        if (!st || st.point == null) { svg.appendChild(el("text", { x: 640, y: y + 14, "text-anchor": "end", opacity: .6 }, "–")); return; }
+        var faint = st.lo == null || (st.lo <= 0 && st.hi >= 0);
+        svg.appendChild(el("rect", { x: Math.min(zero, X(st.point)), y: y + 2, width: Math.max(1, Math.abs(X(st.point) - zero)), height: 16, rx: 3, fill: r[2], opacity: faint ? .3 : .9 }));
+        if (st.lo != null) {
+          svg.appendChild(el("line", { x1: X(st.lo), y1: y + 10, x2: X(st.hi), y2: y + 10, stroke: "currentColor", "stroke-width": 1.5, "stroke-opacity": .75 }));
+          [st.lo, st.hi].forEach(function (v) { svg.appendChild(el("line", { x1: X(v), y1: y + 5, x2: X(v), y2: y + 15, stroke: "currentColor", "stroke-width": 1.5, "stroke-opacity": .75 })); });
+        }
+        svg.appendChild(el("text", { x: 692, y: y + 14, "text-anchor": "end", opacity: faint ? .6 : 1 }, pp(st.point)));
+      });
+      var yb = rows.length * 24 + 24;
+      svg.appendChild(el("text", { x: x0, y: yb, opacity: .6 }, "−40%p"));
+      svg.appendChild(el("text", { x: zero, y: yb, "text-anchor": "middle", opacity: .6 }, "0"));
+      svg.appendChild(el("text", { x: x0 + W, y: yb, "text-anchor": "end", opacity: .6 }, "+100%p"));
+      return svg;
+    }
+    function renderLadder(r) {
+      var box = h("div", "round card ladder");
+      var expName = { exp1: "실험 1", exp2: "실험 2" }[r.exp] || r.exp;
+      box.appendChild(h("h3", null, "전이 사다리 · " + expName + " · " + r.week + " · " + r.date + (r.mock ? ' <span class="pill todo">mock (가짜 풀이자)</span>' : ' <span class="pill ok">확정 실행</span>')));
+      box.appendChild(h("p", "small", "기준선(빈 노트) 정답률: 1단 기출 " + pct(r.baseline.T1) + " · 2단 바꿔 쓴 기출 " + pct(r.baseline.T2) + " · 3단 다른 측면 " + pct(r.baseline.T3) +
+        " <span class=\"muted\">(문항 " + r.n.T1 + " / " + r.n.T2 + " / " + r.n.T3 + ", 문항당 " + r.k + "회, " + r.rounds + "라운드 뒤)</span>"));
+      var arms = Object.keys(r.arms);
+      var t = "<table><tr><th>갈래</th><th>Δ1 기출</th><th>Δ2 바꿔 씀</th><th>Δ3 다른 측면</th><th>O_암기</th><th>O_측면</th><th>G</th></tr>";
+      arms.forEach(function (a) {
+        var b = r.boot[a];
+        t += "<tr><td>" + (ARM_LABEL[a] || a) + "</td>" + ciCell(b.d1) + ciCell(b.d2) + ciCell(b.d3) + ciCell(b.O_mem) + ciCell(b.O_facet) + ciCell(b.G) + "</tr>";
+      });
+      box.appendChild(h("div", null, t + "</table>"));
+      box.appendChild(h("p", "small muted", "노트 항목 수: " + arms.map(function (a) { return (ARM_LABEL[a] || a) + " " + r.arms[a].notes_n; }).join(" · ") + " · 흐린 값은 95% 구간이 0 을 포함"));
+      var ch = h("div", "chart"); arms.forEach(function (a) { ch.appendChild(ladderBars(ARM_LABEL[a] || a, r.boot[a])); }); box.appendChild(ch);
+      box.appendChild(h("div", "legend", '<span><i style="background:var(--danger)"></i>O_암기 = Δ1 − Δ2 (문장이 바뀌면 사라짐)</span><span><i style="background:var(--warn)"></i>O_측면 = Δ2 − Δ3 (다른 측면을 물으면 사라짐)</span><span><i style="background:var(--ok)"></i>G = Δ3 (살아남음)</span><span>가는 선 = 95% 구간</span>'));
+      if (r.judge) {
+        var v = Object.keys(r.judge).map(function (k) {
+          var x = r.judge[k];
+          if (typeof x === "object") return '<span class="pill">' + k + " 방향: O " + x.O + " · Δ1 " + x.d1 + "</span>";
+          return '<span class="pill ' + (x === "확인" || x === "재현" ? "ok" : "") + '">' + k.replace("_", " ") + ": " + x + "</span>";
+        }).join("");
+        box.appendChild(h("p", "verdicts", v));
+      } else box.appendChild(h("p", "small muted", "일부 갈래만 돌린 실행이라 판정하지 않았습니다."));
+      arms.forEach(function (a) {
+        var tr = r.arms[a].treat; if (!tr) return;
+        var g = 0, ps = 0, rv = 0, dl = 0;
+        tr.forEach(function (x) { g += x.generated || 0; ps += x.passed || 0; rv += (x.revised || []).length; dl += (x.deleted || []).length; });
+        box.appendChild(h("p", "small", (ARM_LABEL[a] || a) + ": " + (a === "seen+ce" ? "반례 출제 " + g + " · 거르기 통과 " + ps + " · " : "") + "고친 항목 " + rv + " · 지운 항목 " + dl));
+      });
+      if (r.dropped_pairs && r.dropped_pairs.length) box.appendChild(h("p", "small muted", "2단 짝이 없어 평가에서 뺀 기출: " + r.dropped_pairs.length + "문항"));
+      box.appendChild(h("p", "small muted", "동결: 커밋 " + r.freeze.commit + " · 사다리 문항 해시 " + String(r.freeze.ladder_sha256).slice(0, 8) + " · 풀이자 " + r.model +
+        (r.resumed && r.resumed.length ? " · 이어 돌림 " + r.resumed.length + "회" : "") + " · 비용 $" + num(r.usage && r.usage.usd, 2)));
+      return box;
+    }
+
     function renderExp(e) {
       var box = h("div", "round card");
       var title = { e1: "E1 테스트타임 스케일링 (effort)", e2: "E2 pass@k vs pass^k", e3: "E3 하네스 효과 (자료 없음 / 브리프 / 페이지)" }[e.exp] || e.exp;
@@ -173,6 +271,12 @@
             rb.appendChild(renderRound(r));
             res[1].filter(function (t) { return t.round === r.round; }).forEach(function (t) { rb.appendChild(renderRetro(t)); });
           });
+        });
+      }
+      if (idx.ladders && idx.ladders.length) {
+        var lb = document.getElementById("ladder-box"); lb.innerHTML = "";
+        Promise.all(idx.ladders.map(function (m) { return fetch("../evolve/reports/" + m.file, { cache: "no-store" }).then(function (r) { return r.json(); }); })).then(function (ls) {
+          ls.forEach(function (r) { lb.appendChild(renderLadder(r)); });
         });
       }
       if (idx.experiments && idx.experiments.length) {
