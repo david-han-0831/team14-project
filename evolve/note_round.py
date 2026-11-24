@@ -25,7 +25,8 @@ import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 
-from common import LLM, REPORT_DIR, ROOT, RUN_DIR, STRONG_MODEL, WEAK_MODEL, jdump, load_bank, log, update_report_index
+from common import LLM, REPORT_DIR, ROOT, RUN_DIR, STRONG_MODEL, WEAK_MODEL, brief_bundle, jdump, load_bank, log, update_report_index
+from counter import treat_ce, treat_rev
 from ladder import RUNGS, arm_arrays, decompose, item_acc, joint_bootstrap, judge, rung_table
 from note_propose import propose_entries
 from notes import add_entry, new_notes, notes_text
@@ -80,8 +81,6 @@ def run_experiment(exp: str, week: str, llm, store: Store, *, explore: bool, moc
     """탐색 실행이면 None(기출 정답률은 로그와 저장 지점에만), 확정 실행이면 리포트 dict."""
     if exp not in EXPERIMENTS:
         raise ValueError(exp)
-    if exp == "exp2":
-        raise NotImplementedError("exp2 갈래(반례 처치, 고쳐 쓰기 대조)는 아직 없습니다")
     arms = arms or EXPERIMENTS[exp]
     if not set(arms) <= set(EXPERIMENTS[exp]):
         raise ValueError(f"{exp} 의 갈래가 아닙니다: {arms}")
@@ -91,6 +90,7 @@ def run_experiment(exp: str, week: str, llm, store: Store, *, explore: bool, moc
         raise SystemExit(f"기출 문항이 없습니다: {week}")
 
     table = None
+    ladder: list[dict] = []
     if not explore:
         ladder = ladder_bank if ladder_bank is not None else load_bank("ladder", [week])
         table = rung_table(public, ladder) if ladder else None
@@ -126,36 +126,75 @@ def run_experiment(exp: str, week: str, llm, store: Store, *, explore: bool, moc
         return got
 
     base = {r: solve(f"baseline/{r}", rung_items[r], "") for r in rung_items}
+    brief = brief_bundle(week)
     out_arms: dict[str, dict] = {}
     finals: dict[str, dict] = {}
+    train: dict[str, dict] = {}
     for arm in arms:
+        treated = arm in ("seen+ce", "seen+rev")
         notes = new_notes(week, arm)
         rejected_n = 0
         t1 = []
+        treats: list[dict] = []
+        counts = {"propose_calls": 0, "ce_generated": 0, "revise_calls": 0}
         for r in range(1, ROUNDS + 1):
             run_r = base["T1"] if r == 1 else solve(f"{arm}/r{r}/solve", public, notes_text(notes))
             t1.append(run_r["summary"]["acc"])
             done = store.get(f"{arm}/r{r}/notes")
             if done is not None:
                 notes, rejected_n = done["notes"], done["rejected_n"]
+                treats, counts = done.get("treats", treats), done.get("counts", counts)
                 continue
             acc = item_acc(run_r)
             failed = [q for q in public if acc[q["id"]] < 1]       # 한 번이라도 틀린 기출
             prop = store.get(f"{arm}/r{r}/proposed")
-            if prop is None:
+            if prop is None and treated and r == 1:
+                # 1라운드 제안은 seen 의 것을 그대로 받는다(같은 빈 노트, 같은 틀린 문항). 제안자 한 번의 우연이 갈래 차이로 보이지 않게
+                prop = store.get("seen/r1/proposed")
+                if prop is None:
+                    raise SystemExit("seen 갈래를 먼저 실행하세요. 이 갈래는 seen 의 1라운드 제안에서 갈라집니다.")
+                store.put(f"{arm}/r{r}/proposed", prop)
+                for e in prop["added"]:
+                    add_entry(notes, e["concept"], e["rule"], e["sources"], e["origin"]["from"], r)
+            elif prop is None:
                 log(f"[{arm}/r{r}] 틀린 기출 {len(failed)}문항 → 제안")
                 prop = propose_entries(arm, week, failed, notes, llm, public, MAX_NEW, round_no=r)
                 store.put(f"{arm}/r{r}/proposed", prop)
+                counts["propose_calls"] += 1 if failed else 0
             else:      # 제안은 저장됐지만 노트 저장 전에 끊긴 경우: 다시 부르지 않고 같은 항목을 넣는다
                 for e in prop["added"]:
                     add_entry(notes, e["concept"], e["rule"], e["sources"], e["origin"]["from"], r)
+                counts["propose_calls"] += 1 if (failed and not (treated and r == 1)) else 0
             rejected_n += len(prop["rejected"])
+            if treated:      # ④ 고치기: 이번 라운드에 생긴 항목만
+                tr = store.get(f"{arm}/r{r}/treat")
+                if tr is None:
+                    new_ids = [e["id"] for e in prop["added"]]
+                    if arm == "seen+ce":
+                        out = treat_ce(notes, new_ids, brief, llm, public, ladder, week, round_no=r)
+                    else:
+                        ref = store.get(f"seen+ce/r{r}/treat")
+                        if ref is None:
+                            raise SystemExit("seen+ce 갈래를 먼저 실행하세요. seen+rev 는 seen+ce 가 쓴 고쳐 쓰기 횟수만큼만 고칩니다.")
+                        out = treat_rev(notes, new_ids, ref["out"]["revise_calls"], brief, llm, round_no=r)
+                    tr = {"out": out, "notes": notes}
+                    store.put(f"{arm}/r{r}/treat", tr)
+                else:
+                    notes = tr["notes"]
+                out = tr["out"]
+                treats.append({k: v for k, v in out.items() if k != "ces"})
+                counts["ce_generated"] += out.get("generated", 0)
+                counts["revise_calls"] += out["revise_calls"]
+                log(f"[{arm}/r{r}] 고치기: 출제 {out.get('generated', 0)} · 통과 {out.get('passed', 0)} · 고쳐 쓰기 호출 {out['revise_calls']} · 고침 {out['revised']} · 지움 {out['deleted']}")
             notes["round"] = r
-            store.put(f"{arm}/r{r}/notes", {"notes": notes, "rejected_n": rejected_n})
+            store.put(f"{arm}/r{r}/notes", {"notes": notes, "rejected_n": rejected_n, "treats": treats, "counts": counts})
             log(f"[{arm}/r{r}] 노트 항목 {len(notes['entries'])}개 (이번 라운드 +{len(prop['added'])}, 버림 {len(prop['rejected'])})")
         finals[arm] = {r: solve(f"{arm}/final/{r}", rung_items[r], notes_text(notes)) for r in rung_items}
         t1.append(finals[arm]["T1"]["summary"]["acc"])
         out_arms[arm] = {"t1_by_round": [round(x, 4) for x in t1], "notes_n": len(notes["entries"]), "rejected_n": rejected_n}
+        if treated:
+            out_arms[arm]["treat"] = treats
+        train[arm] = counts
         log(f"[{arm}] 기출 정답률(라운드 0→{ROUNDS}): {out_arms[arm]['t1_by_round']} · 노트 {len(notes['entries'])}항목")
 
     if explore:
@@ -174,7 +213,7 @@ def run_experiment(exp: str, week: str, llm, store: Store, *, explore: bool, moc
         "exp": exp, "week": week, "date": dt.date.today().isoformat(), "mock": mock, "k": K, "rounds": ROUNDS, "model": WEAK_MODEL,
         "n": {r: len(table[r]) for r in RUNGS}, "dropped_pairs": table["dropped_pairs"],
         "baseline": {r: round(_mean(first[r]["base"]), 4) for r in RUNGS},
-        "arms": out_arms, "boot": boot,
+        "arms": out_arms, "train": train, "boot": boot,
         "judge": judge(boot, len(table["T1"]), exp) if set(arms) == set(EXPERIMENTS[exp]) else None,
         "freeze": {"commit": freeze["commit"], "dirty": freeze["dirty"], "ladder_sha256": hashlib.sha256(canon.encode("utf-8")).hexdigest(),
                    "params": {"rounds": ROUNDS, "k": K, "max_new": MAX_NEW, "solver": WEAK_MODEL, "proposer": STRONG_MODEL, "n_boot": N_BOOT, "seed": SEED}},

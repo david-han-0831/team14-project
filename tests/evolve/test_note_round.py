@@ -162,7 +162,3 @@ def test_partial_arms_run_has_no_judgement(tmp_path):
     rep = run(tmp_path, make_llm(), arms=["seen"])
     assert set(rep["arms"]) == {"seen"} and rep["judge"] is None
 
-
-def test_exp2_arms_are_not_available_yet(tmp_path):
-    with pytest.raises(NotImplementedError):
-        nr.run_experiment("exp2", "weekXX", make_llm(), nr.Store(tmp_path), explore=True, mock=True, public_bank=pub(), freeze=FREEZE)
