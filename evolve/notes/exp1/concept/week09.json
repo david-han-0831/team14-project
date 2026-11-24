@@ -1,0 +1,656 @@
+{
+ "exp": "exp1",
+ "week": "week09",
+ "arm": "concept",
+ "mock": false,
+ "final": {
+  "week": "week09",
+  "arm": "concept",
+  "round": 3,
+  "entries": [
+   {
+    "id": "n01",
+    "concept": "다양성 붕괴와 MAP-Elites·Island 진화",
+    "rule": "진화 탐색(AlphaEvolve 등)은 변이·교차로 새 전략을 만들고 좋은 것만 남기는데, 그대로 두면 인터넷에 논문이 많은 분야(예: 조합론) 전략으로 쏠려 다양성이 붕괴하고 이는 진화·RL 루프가 알려진 고보상 패턴만 착취하는 RSI 병목이기도 하다. 해법은 구역을 나눠 따로 진화시키는 것으로, MAP-Elites는 특성 공간의 칸마다 최고 성능 개체를 따로 보관하고 Island 진화는 여러 섬에서 독립적으로 진화시킨 뒤 필요하면 나중에 섞는다. UCB로 유망한 것과 덜 탐색한 것의 균형을 잡는 진화 탐색은 슬라이드상 ShinkaEvolve(Bandit-Based LLM Selection)이며, 교수는 다양성 유지 여부가 실제 성능 차이를 크게 만든다고 강조했다.",
+    "sources": [
+     "9주차 핵심 개념 6. 진화 탐색과 다양성: MAP-Elites, Island 진화",
+     "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열",
+     "8주차 핵심 개념 10. 미래 과제: 자동 연구의 6가지 실패 모드와 RSI 7대 병목",
+     "9주차 요약본 정정"
+    ],
+    "origin": {
+     "round": 1,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n02",
+    "concept": "합성 문제·피처 생성의 조건: 난이도와 분야별 생성",
+    "rule": "에이전트가 솔버용 수학 문제를 합성할 때는 솔버가 너무 쉽게 풀거나 아예 못 푸는 문제는 도움이 안 되므로 적당한 난이도(Autodata agent처럼 Strong Solver는 풀고 Weak Solver는 못 푸는 수준)여야 하고, 그냥 생성하면 특정 분야로 쏠리므로 정수론·기하·확률처럼 분야를 나눠 생성해야 한다. 테이블 파운데이션 모델은 텍스트·코드 없이 숫자 피처만 받으므로 자가 진화로 바꿀 수 있는 것은 사실상 피처이며, GPT가 예측 결과와 오차를 보고 피처 추가·삭제·전처리를 제안해 다시 예측한다(온열질환자 수 예측에 '만 65세 이상 인구 비율'을 넣어 성능 향상). 피처 제안도 인구·기상·농업 등으로 쏠리므로 카테고리별로 나누고 부족한 카테고리에서 더 생성하게 한다.",
+    "sources": [
+     "9주차 핵심 개념 7. 사례: 수학 문제 자가 생성 — 다양성이 핵심",
+     "9주차 핵심 개념 8. 사례: 테이블 파운데이션 모델 자가 진화",
+     "8주차 핵심 개념 6. 워크플로우 디자인: AI Scientist, ScientistOne, Autodata agent, ADAS, AFlow"
+    ],
+    "origin": {
+     "round": 1,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n03",
+    "concept": "아티팩트를 만드는 능력 vs 받아먹는 능력",
+    "rule": "아티팩트(스킬·메모리·프롬프트)를 교사 모델(예: GPT)로 만들어 학생 모델(예: Qwen)에 그대로 넣으면 교사에 특화돼 잘 활용하지 못하므로, 성능은 아티팩트를 만드는 능력과 받아먹는 능력 두 가지에 좌우된다. 슬라이드의 Lin et al. 2026 결과는 만드는 능력(harness-updating)은 Qwen2-32B~Opus 4.6에서 대체로 평평하고 활용 능력(harness-benefit)은 비단조적이어서 중간 티어 모델이 가장 이득을 본다는 것이다. 구두 설명은 결론(중간 티어 최대 이득)은 같지만 '약한 모델은 좋은 아티팩트를 못 만들고 최상위 모델은 이미 알아서 이득이 작다'는 다른 이유를 댔으므로 두 출처의 근거를 섞지 않는다.",
+    "sources": [
+     "9주차 핵심 개념 5. 자기개선 하네스: 아티팩트를 만드는 능력과 받아먹는 능력",
+     "8주차 핵심 개념 7. 자기개선 하네스: STOP → Lin et al. → Self-Harness → AHE"
+    ],
+    "origin": {
+     "round": 1,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n04",
+    "concept": "리워드 해킹과 eureka-ing",
+    "rule": "리워드 해킹은 루프가 진짜 능력 대신 평가의 허점을 파고드는 것으로, 유닛테스트에는 테스트 과적합, judge에는 judge 전용 꼼수, 벤치마크에는 아티팩트 착취로 나타난다(예: LiveMath에서 'a stronger result can be proven' 선택지가 학습 문항 35개 중 21개에 등장하고 항상 정답). eureka-ing은 버그나 오류로 100% 같은 점수가 나왔는데 돌파구로 착각하는 것으로, 이후 탐색이 그쪽으로만 쏠린다(p-hacking은 100번 중 성공 1번만 보고하는 것으로 별개). 대책은 평가자와 권한 제어를 루프 바깥에 두고 held-out 테스트·트레이스 감사·인간 리뷰를 쓰는 것이다.",
+    "sources": [
+     "9주차 핵심 개념 10. 리워드 해킹과 비싼 하네스",
+     "8주차 핵심 개념 10. 미래 과제: 자동 연구의 6가지 실패 모드와 RSI 7대 병목",
+     "8주차 핵심 개념 11. 하네스 진화 성능 분해 — HDA와 O / T / G"
+    ],
+    "origin": {
+     "round": 1,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n05",
+    "concept": "워크플로우 디자인: ADAS vs AFlow",
+    "rule": "워크플로우 디자인은 모델·도구·아티팩트의 호출 순서와 구성을 최적화하는 것이며, 설계 공간이 거대해 탐색 문제로 본다. ADAS(Hu et al. 2025)는 메타 에이전트가 과제 분해·LLM 호출 순서·답 종합 방식을 담은 새 워크플로우를 제안하는 meta-agent search이고, MCTS는 ADAS가 아니라 AFlow의 방법이다. AFlow(Zhang et al. 2025)는 워크플로우를 그래프(노드 = LLM 호출 액션, 엣지 = 코드로 구현된 논리 연산)로 표현하고, 점수와 균등 탐색의 soft mixture로 노드를 골라 LLM에게 평가 성능에 조건화된 수정본을 받아 실행·평가하고, 개선 시 트리에 추가하며 top-k 평균 점수가 정체되거나 예산이 소진되면 종료한다.",
+    "sources": [
+     "8주차 핵심 개념 6. 워크플로우 디자인: AI Scientist, ScientistOne, Autodata agent, ADAS, AFlow",
+     "9주차 핵심 개념 4. 워크플로우 디자인 복습: ADAS와 AFlow",
+     "8주차 요약본 정정"
+    ],
+    "origin": {
+     "round": 1,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n06",
+    "concept": "열린 문제: 하네스 재활용·하네스 요소 기여도·하네스 vs 가중치",
+    "rule": "모델 버전이 바뀔 때(구두 예: GPT-6 → GPT-7) 비싸게 만든 하네스를 그대로 쓸 수 있는지는 열린 연구 문제로, 작은 버전 차이에서는 재활용되지만 큰 변화에서는 대개 기존 스킬 등을 버리고 다시 짠다. 하네스 평가 한 번에도 큰 비용이 들고 재구성 비용은 더 크기 때문에 좋은 연구 주제로 소개됐다(구두로 ARC-AGI-3에서 97.6% → 99.6%로 올리는 데 하네스 비용만 약 2만 5천 달러가 들었다는 언급이 있으며, 이 수치는 슬라이드에 없다). 관련 열린 문제로 MCE처럼 마크다운 컨텍스트가 대량으로 쌓여도 어떤 하네스 요소가 성능을 올렸는지 알 수 없고(데이터 기여도 연구는 많지만 하네스 요소 기여도 분석은 적다), 새 지식을 하네스만으로 넣을 수 있는지 가중치를 바꿔야 하는지의 기준도 아직 없다.",
+    "sources": [
+     "9주차 핵심 개념 13. 열린 문제: 모델이 바뀌면 하네스를 재활용할 수 있나 (Q&A)",
+     "9주차 핵심 개념 5. 자기개선 하네스: 아티팩트를 만드는 능력과 받아먹는 능력",
+     "9주차 핵심 개념 9. 경험(experience)의 세 가지 출처와 가중치 공동 최적화",
+     "9주차 핵심 개념 10. 리워드 해킹과 비싼 하네스"
+    ],
+    "origin": {
+     "round": 2,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n07",
+    "concept": "pass@k vs pass^k와 에이전트 검증 가이드",
+    "rule": "LLM 출력은 샘플링마다 달라 여러 번 실행해 본다. pass@k는 k번 중 한 번이라도 성공할 확률로 1 − (1 − p)^k이고(n번 중 c번 성공했을 때의 불편 추정량은 1 − C(n−c, k)/C(n, k)), pass^k는 k번 모두 성공할 확률 p^k라서 k가 커지면 pass@k는 오르고 pass^k는 내려간다. 프론티어 모델의 pass@1이 10~20%로 낮으면 대개 데이터셋 문제이므로 pass@k(k = 10, 50)로 다시 확인하고 그마저 낮으면 문제를 다시 만들며(슬라이드: pass@100 = 0%면 대개 과제 결함), Anthropic 가이드에 따라 평가셋은 처음부터 실제 실패 사례 20~50개를 수작업으로 모으고(이미 손으로 테스트하던 것부터), 늘릴 때는 LLM 판정보다 기계적으로 정답을 검증할 수 있는 문제로 만들고, 실제로 운영·사용할 사람이 만들고 검토하게 한다.",
+    "sources": [
+     "9주차 핵심 개념 12. pass@k와 pass^k — 문제가 망가졌는지 확인하기",
+     "9주차 핵심 개념 11. 에이전트 검증 가이드 (Anthropic) — 처음부터 데이터셋을 만들어라"
+    ],
+    "origin": {
+     "round": 2,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n08",
+    "concept": "경험의 세 출처와 가중치·하네스 공동 최적화",
+    "rule": "자가 진화가 쓰는 경험은 솔버가 직접 풀고 맞고 틀린 기록, 다른 에이전트가 타깃 에이전트가 어려워할 문제를 만들어 준 합성 경험, 사람 전문가의 데모(DemoEvolve) 세 가지다. 하네스만 바꾸는 방식의 다음 단계는 가중치와 하네스를 같이 최적화하는 것으로, 하네스 개선과 파라미터 갱신을 번갈아 하므로 무엇을 갱신할지 결정하는 별도 에이전트가 필요하다. 예를 들어 SIA에서는 Feedback-Agent가 최근 궤적을 보고 하네스를 갱신할지 가중치를 갱신할지 선택한다.",
+    "sources": [
+     "9주차 핵심 개념 9. 경험(experience)의 세 가지 출처와 가중치 공동 최적화",
+     "8주차 핵심 개념 9. 가중치 공동 최적화: SIA, Continual Harness"
+    ],
+    "origin": {
+     "round": 2,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n09",
+    "concept": "CoT 바깥 vs 모델 내부(hidden state)로 가는 흐름",
+    "rule": "지금의 하네스 엔지니어링은 모델이 토큰으로 내보낸 CoT를 Reflector가 읽고 반성하는 방식이지만, 출력된 생각과 내부 연산은 다를 수 있다(예: 'A를 생각하지 마'라고 하면 출력에는 A가 없어도 내부 활성화에는 A 관련 신호가 있다). 그래서 hidden state를 직접 분석해 하네스에 활용하는 방향(Goodfire 등 메커니즘 해석)이 떠오르고 있다. 한편 Meta-Harness는 하네스를 진화시키지만 하네스를 제안하는 에이전트 자체는 최적화하지 않으며, 그것까지 최적화하는 것이 Hyperagents다.",
+    "sources": [
+     "9주차 핵심 개념 3. 컨텍스트 엔지니어링 복습과 \"모델 내부\"로 가는 흐름",
+     "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열"
+    ],
+    "origin": {
+     "round": 2,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n10",
+    "concept": "진화 탐색이 하네스 탐색에 맞는 조건",
+    "rule": "진화 탐색은 해 집단을 변이시키고 적합도가 높은 것만 남기는 방식이다. 탐색 공간이 넓거나 기형이고, 그래디언트로 직접 최적화하기는 어렵지만 평가는 쉬울 때 적합하므로 하네스 탐색에 잘 맞는다. 하네스는 코드이므로 LLM이 코드를 최적화할 수 있으면 손으로 쓴 프롬프트보다 훨씬 큰 설계 공간에 접근할 수 있다.",
+    "sources": [
+     "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열",
+     "8주차 핵심 개념 3. 하네스 최적화의 진행 방향과 5가지 축",
+     "9주차 핵심 개념 6. 진화 탐색과 다양성: MAP-Elites, Island 진화"
+    ],
+    "origin": {
+     "round": 3,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n11",
+    "concept": "AlphaEvolve 구조 vs ThetaEvolve",
+    "rule": "AlphaEvolve(Novikov et al. 2025)는 후보 프로그램 풀을 유지하면서 고정된 LLM에게 diff를 생성하게 한다. MAP-Elites로 특성 공간의 각 영역에서 고성능 프로그램을 유지하고, Island 진화로 다양한 진화 경로를 유지하며, 진화시킬 코드 영역은 `# EVOLVE-BLOCK-START/END`로 표시하고 메타프롬프트도 함께 공진화시키지만 LLM 파라미터는 갱신하지 않는다. 반면 ThetaEvolve(Wang et al. 2025)는 진화 탐색과 In-Context Learning에 더해, 실행 성능을 보상으로 삼아 GRPO로 LLM 파라미터까지 갱신한다.",
+    "sources": [
+     "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열"
+    ],
+    "origin": {
+     "round": 3,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n12",
+    "concept": "ShinkaEvolve의 구성 요소와 UCB의 대상",
+    "rule": "ShinkaEvolve(Lange et al. 2025)는 샘플 효율을 높이기 위한 진화 탐색으로, 네 가지 장치를 쓴다: Adaptive Parent Sampling(고성능 부모와 덜 탐색된 부모를 가중 샘플링), Novelty Rejection Sampling(코드 임베딩 유사도와 LLM 판단으로 중복 변이 제거), Bandit-Based LLM Selection(UCB로 기여도 높은 변이 LLM 선호), Meta-Scratchpad. 슬라이드 기준으로 UCB가 고르는 대상은 변이를 만드는 LLM이고, 고성능과 미탐색 부모 사이의 균형은 Adaptive Parent Sampling이 담당한다. 구두로 언급된 'EvoX 계열'은 이름 확인이 필요하므로 UCB 사례로는 ShinkaEvolve를 기준으로 삼는다.",
+    "sources": [
+     "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열",
+     "9주차 핵심 개념 6. 진화 탐색과 다양성: MAP-Elites, Island 진화",
+     "9주차 요약본 정정"
+    ],
+    "origin": {
+     "round": 3,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n13",
+    "concept": "프롬프트 영역의 진화 탐색: Promptbreeder, GEPA",
+    "rule": "Promptbreeder(Fernando et al. 2023)는 과제 프롬프트뿐 아니라 변이에 쓰는 프롬프트 자체도 진화시킨다. GEPA(Agrawal et al. 2025)는 반성 기반 프롬프팅과 진화 탐색을 결합한 방법으로, 시행착오 궤적을 자연어로 반성해 프롬프트 갱신안을 제안한다.",
+    "sources": [
+     "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열"
+    ],
+    "origin": {
+     "round": 3,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n14",
+    "concept": "DGM vs Hyperagents vs Self-Harness",
+    "rule": "DGM(Darwin Gödel Machine, Zhang et al. 2025)은 코딩 에이전트가 자기 파이썬 코드베이스를 수정(Self-Modification)해 더 나은 코딩 에이전트가 되고, 그 결과를 평가해 아카이브에 쌓는 열린 탐색이다. 다만 자기개선 절차가 고정돼 있고 코딩 스킬에 의존하므로 다른 도메인으로의 일반화가 제한된다. Hyperagents(DGM-H)는 Task Agent와 Meta Agent를 분리하고 Meta Agent가 Task Agent와 자기 자신의 개선 절차까지 수정하며(Metacognitive Self-Modification), Self-Harness는 열린 탐색 대신 실패에 기반해 검증된 수정에 집중한다.",
+    "sources": [
+     "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열"
+    ],
+    "origin": {
+     "round": 3,
+     "from": "public-fail"
+    },
+    "history": []
+   }
+  ],
+  "deleted": [],
+  "seq": 14
+ },
+ "by_round": [
+  {
+   "week": "week09",
+   "arm": "concept",
+   "round": 1,
+   "entries": [
+    {
+     "id": "n01",
+     "concept": "다양성 붕괴와 MAP-Elites·Island 진화",
+     "rule": "진화 탐색(AlphaEvolve 등)은 변이·교차로 새 전략을 만들고 좋은 것만 남기는데, 그대로 두면 인터넷에 논문이 많은 분야(예: 조합론) 전략으로 쏠려 다양성이 붕괴하고 이는 진화·RL 루프가 알려진 고보상 패턴만 착취하는 RSI 병목이기도 하다. 해법은 구역을 나눠 따로 진화시키는 것으로, MAP-Elites는 특성 공간의 칸마다 최고 성능 개체를 따로 보관하고 Island 진화는 여러 섬에서 독립적으로 진화시킨 뒤 필요하면 나중에 섞는다. UCB로 유망한 것과 덜 탐색한 것의 균형을 잡는 진화 탐색은 슬라이드상 ShinkaEvolve(Bandit-Based LLM Selection)이며, 교수는 다양성 유지 여부가 실제 성능 차이를 크게 만든다고 강조했다.",
+     "sources": [
+      "9주차 핵심 개념 6. 진화 탐색과 다양성: MAP-Elites, Island 진화",
+      "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열",
+      "8주차 핵심 개념 10. 미래 과제: 자동 연구의 6가지 실패 모드와 RSI 7대 병목",
+      "9주차 요약본 정정"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n02",
+     "concept": "합성 문제·피처 생성의 조건: 난이도와 분야별 생성",
+     "rule": "에이전트가 솔버용 수학 문제를 합성할 때는 솔버가 너무 쉽게 풀거나 아예 못 푸는 문제는 도움이 안 되므로 적당한 난이도(Autodata agent처럼 Strong Solver는 풀고 Weak Solver는 못 푸는 수준)여야 하고, 그냥 생성하면 특정 분야로 쏠리므로 정수론·기하·확률처럼 분야를 나눠 생성해야 한다. 테이블 파운데이션 모델은 텍스트·코드 없이 숫자 피처만 받으므로 자가 진화로 바꿀 수 있는 것은 사실상 피처이며, GPT가 예측 결과와 오차를 보고 피처 추가·삭제·전처리를 제안해 다시 예측한다(온열질환자 수 예측에 '만 65세 이상 인구 비율'을 넣어 성능 향상). 피처 제안도 인구·기상·농업 등으로 쏠리므로 카테고리별로 나누고 부족한 카테고리에서 더 생성하게 한다.",
+     "sources": [
+      "9주차 핵심 개념 7. 사례: 수학 문제 자가 생성 — 다양성이 핵심",
+      "9주차 핵심 개념 8. 사례: 테이블 파운데이션 모델 자가 진화",
+      "8주차 핵심 개념 6. 워크플로우 디자인: AI Scientist, ScientistOne, Autodata agent, ADAS, AFlow"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n03",
+     "concept": "아티팩트를 만드는 능력 vs 받아먹는 능력",
+     "rule": "아티팩트(스킬·메모리·프롬프트)를 교사 모델(예: GPT)로 만들어 학생 모델(예: Qwen)에 그대로 넣으면 교사에 특화돼 잘 활용하지 못하므로, 성능은 아티팩트를 만드는 능력과 받아먹는 능력 두 가지에 좌우된다. 슬라이드의 Lin et al. 2026 결과는 만드는 능력(harness-updating)은 Qwen2-32B~Opus 4.6에서 대체로 평평하고 활용 능력(harness-benefit)은 비단조적이어서 중간 티어 모델이 가장 이득을 본다는 것이다. 구두 설명은 결론(중간 티어 최대 이득)은 같지만 '약한 모델은 좋은 아티팩트를 못 만들고 최상위 모델은 이미 알아서 이득이 작다'는 다른 이유를 댔으므로 두 출처의 근거를 섞지 않는다.",
+     "sources": [
+      "9주차 핵심 개념 5. 자기개선 하네스: 아티팩트를 만드는 능력과 받아먹는 능력",
+      "8주차 핵심 개념 7. 자기개선 하네스: STOP → Lin et al. → Self-Harness → AHE"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n04",
+     "concept": "리워드 해킹과 eureka-ing",
+     "rule": "리워드 해킹은 루프가 진짜 능력 대신 평가의 허점을 파고드는 것으로, 유닛테스트에는 테스트 과적합, judge에는 judge 전용 꼼수, 벤치마크에는 아티팩트 착취로 나타난다(예: LiveMath에서 'a stronger result can be proven' 선택지가 학습 문항 35개 중 21개에 등장하고 항상 정답). eureka-ing은 버그나 오류로 100% 같은 점수가 나왔는데 돌파구로 착각하는 것으로, 이후 탐색이 그쪽으로만 쏠린다(p-hacking은 100번 중 성공 1번만 보고하는 것으로 별개). 대책은 평가자와 권한 제어를 루프 바깥에 두고 held-out 테스트·트레이스 감사·인간 리뷰를 쓰는 것이다.",
+     "sources": [
+      "9주차 핵심 개념 10. 리워드 해킹과 비싼 하네스",
+      "8주차 핵심 개념 10. 미래 과제: 자동 연구의 6가지 실패 모드와 RSI 7대 병목",
+      "8주차 핵심 개념 11. 하네스 진화 성능 분해 — HDA와 O / T / G"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n05",
+     "concept": "워크플로우 디자인: ADAS vs AFlow",
+     "rule": "워크플로우 디자인은 모델·도구·아티팩트의 호출 순서와 구성을 최적화하는 것이며, 설계 공간이 거대해 탐색 문제로 본다. ADAS(Hu et al. 2025)는 메타 에이전트가 과제 분해·LLM 호출 순서·답 종합 방식을 담은 새 워크플로우를 제안하는 meta-agent search이고, MCTS는 ADAS가 아니라 AFlow의 방법이다. AFlow(Zhang et al. 2025)는 워크플로우를 그래프(노드 = LLM 호출 액션, 엣지 = 코드로 구현된 논리 연산)로 표현하고, 점수와 균등 탐색의 soft mixture로 노드를 골라 LLM에게 평가 성능에 조건화된 수정본을 받아 실행·평가하고, 개선 시 트리에 추가하며 top-k 평균 점수가 정체되거나 예산이 소진되면 종료한다.",
+     "sources": [
+      "8주차 핵심 개념 6. 워크플로우 디자인: AI Scientist, ScientistOne, Autodata agent, ADAS, AFlow",
+      "9주차 핵심 개념 4. 워크플로우 디자인 복습: ADAS와 AFlow",
+      "8주차 요약본 정정"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    }
+   ],
+   "deleted": [],
+   "seq": 5
+  },
+  {
+   "week": "week09",
+   "arm": "concept",
+   "round": 2,
+   "entries": [
+    {
+     "id": "n01",
+     "concept": "다양성 붕괴와 MAP-Elites·Island 진화",
+     "rule": "진화 탐색(AlphaEvolve 등)은 변이·교차로 새 전략을 만들고 좋은 것만 남기는데, 그대로 두면 인터넷에 논문이 많은 분야(예: 조합론) 전략으로 쏠려 다양성이 붕괴하고 이는 진화·RL 루프가 알려진 고보상 패턴만 착취하는 RSI 병목이기도 하다. 해법은 구역을 나눠 따로 진화시키는 것으로, MAP-Elites는 특성 공간의 칸마다 최고 성능 개체를 따로 보관하고 Island 진화는 여러 섬에서 독립적으로 진화시킨 뒤 필요하면 나중에 섞는다. UCB로 유망한 것과 덜 탐색한 것의 균형을 잡는 진화 탐색은 슬라이드상 ShinkaEvolve(Bandit-Based LLM Selection)이며, 교수는 다양성 유지 여부가 실제 성능 차이를 크게 만든다고 강조했다.",
+     "sources": [
+      "9주차 핵심 개념 6. 진화 탐색과 다양성: MAP-Elites, Island 진화",
+      "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열",
+      "8주차 핵심 개념 10. 미래 과제: 자동 연구의 6가지 실패 모드와 RSI 7대 병목",
+      "9주차 요약본 정정"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n02",
+     "concept": "합성 문제·피처 생성의 조건: 난이도와 분야별 생성",
+     "rule": "에이전트가 솔버용 수학 문제를 합성할 때는 솔버가 너무 쉽게 풀거나 아예 못 푸는 문제는 도움이 안 되므로 적당한 난이도(Autodata agent처럼 Strong Solver는 풀고 Weak Solver는 못 푸는 수준)여야 하고, 그냥 생성하면 특정 분야로 쏠리므로 정수론·기하·확률처럼 분야를 나눠 생성해야 한다. 테이블 파운데이션 모델은 텍스트·코드 없이 숫자 피처만 받으므로 자가 진화로 바꿀 수 있는 것은 사실상 피처이며, GPT가 예측 결과와 오차를 보고 피처 추가·삭제·전처리를 제안해 다시 예측한다(온열질환자 수 예측에 '만 65세 이상 인구 비율'을 넣어 성능 향상). 피처 제안도 인구·기상·농업 등으로 쏠리므로 카테고리별로 나누고 부족한 카테고리에서 더 생성하게 한다.",
+     "sources": [
+      "9주차 핵심 개념 7. 사례: 수학 문제 자가 생성 — 다양성이 핵심",
+      "9주차 핵심 개념 8. 사례: 테이블 파운데이션 모델 자가 진화",
+      "8주차 핵심 개념 6. 워크플로우 디자인: AI Scientist, ScientistOne, Autodata agent, ADAS, AFlow"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n03",
+     "concept": "아티팩트를 만드는 능력 vs 받아먹는 능력",
+     "rule": "아티팩트(스킬·메모리·프롬프트)를 교사 모델(예: GPT)로 만들어 학생 모델(예: Qwen)에 그대로 넣으면 교사에 특화돼 잘 활용하지 못하므로, 성능은 아티팩트를 만드는 능력과 받아먹는 능력 두 가지에 좌우된다. 슬라이드의 Lin et al. 2026 결과는 만드는 능력(harness-updating)은 Qwen2-32B~Opus 4.6에서 대체로 평평하고 활용 능력(harness-benefit)은 비단조적이어서 중간 티어 모델이 가장 이득을 본다는 것이다. 구두 설명은 결론(중간 티어 최대 이득)은 같지만 '약한 모델은 좋은 아티팩트를 못 만들고 최상위 모델은 이미 알아서 이득이 작다'는 다른 이유를 댔으므로 두 출처의 근거를 섞지 않는다.",
+     "sources": [
+      "9주차 핵심 개념 5. 자기개선 하네스: 아티팩트를 만드는 능력과 받아먹는 능력",
+      "8주차 핵심 개념 7. 자기개선 하네스: STOP → Lin et al. → Self-Harness → AHE"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n04",
+     "concept": "리워드 해킹과 eureka-ing",
+     "rule": "리워드 해킹은 루프가 진짜 능력 대신 평가의 허점을 파고드는 것으로, 유닛테스트에는 테스트 과적합, judge에는 judge 전용 꼼수, 벤치마크에는 아티팩트 착취로 나타난다(예: LiveMath에서 'a stronger result can be proven' 선택지가 학습 문항 35개 중 21개에 등장하고 항상 정답). eureka-ing은 버그나 오류로 100% 같은 점수가 나왔는데 돌파구로 착각하는 것으로, 이후 탐색이 그쪽으로만 쏠린다(p-hacking은 100번 중 성공 1번만 보고하는 것으로 별개). 대책은 평가자와 권한 제어를 루프 바깥에 두고 held-out 테스트·트레이스 감사·인간 리뷰를 쓰는 것이다.",
+     "sources": [
+      "9주차 핵심 개념 10. 리워드 해킹과 비싼 하네스",
+      "8주차 핵심 개념 10. 미래 과제: 자동 연구의 6가지 실패 모드와 RSI 7대 병목",
+      "8주차 핵심 개념 11. 하네스 진화 성능 분해 — HDA와 O / T / G"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n05",
+     "concept": "워크플로우 디자인: ADAS vs AFlow",
+     "rule": "워크플로우 디자인은 모델·도구·아티팩트의 호출 순서와 구성을 최적화하는 것이며, 설계 공간이 거대해 탐색 문제로 본다. ADAS(Hu et al. 2025)는 메타 에이전트가 과제 분해·LLM 호출 순서·답 종합 방식을 담은 새 워크플로우를 제안하는 meta-agent search이고, MCTS는 ADAS가 아니라 AFlow의 방법이다. AFlow(Zhang et al. 2025)는 워크플로우를 그래프(노드 = LLM 호출 액션, 엣지 = 코드로 구현된 논리 연산)로 표현하고, 점수와 균등 탐색의 soft mixture로 노드를 골라 LLM에게 평가 성능에 조건화된 수정본을 받아 실행·평가하고, 개선 시 트리에 추가하며 top-k 평균 점수가 정체되거나 예산이 소진되면 종료한다.",
+     "sources": [
+      "8주차 핵심 개념 6. 워크플로우 디자인: AI Scientist, ScientistOne, Autodata agent, ADAS, AFlow",
+      "9주차 핵심 개념 4. 워크플로우 디자인 복습: ADAS와 AFlow",
+      "8주차 요약본 정정"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n06",
+     "concept": "열린 문제: 하네스 재활용·하네스 요소 기여도·하네스 vs 가중치",
+     "rule": "모델 버전이 바뀔 때(구두 예: GPT-6 → GPT-7) 비싸게 만든 하네스를 그대로 쓸 수 있는지는 열린 연구 문제로, 작은 버전 차이에서는 재활용되지만 큰 변화에서는 대개 기존 스킬 등을 버리고 다시 짠다. 하네스 평가 한 번에도 큰 비용이 들고 재구성 비용은 더 크기 때문에 좋은 연구 주제로 소개됐다(구두로 ARC-AGI-3에서 97.6% → 99.6%로 올리는 데 하네스 비용만 약 2만 5천 달러가 들었다는 언급이 있으며, 이 수치는 슬라이드에 없다). 관련 열린 문제로 MCE처럼 마크다운 컨텍스트가 대량으로 쌓여도 어떤 하네스 요소가 성능을 올렸는지 알 수 없고(데이터 기여도 연구는 많지만 하네스 요소 기여도 분석은 적다), 새 지식을 하네스만으로 넣을 수 있는지 가중치를 바꿔야 하는지의 기준도 아직 없다.",
+     "sources": [
+      "9주차 핵심 개념 13. 열린 문제: 모델이 바뀌면 하네스를 재활용할 수 있나 (Q&A)",
+      "9주차 핵심 개념 5. 자기개선 하네스: 아티팩트를 만드는 능력과 받아먹는 능력",
+      "9주차 핵심 개념 9. 경험(experience)의 세 가지 출처와 가중치 공동 최적화",
+      "9주차 핵심 개념 10. 리워드 해킹과 비싼 하네스"
+     ],
+     "origin": {
+      "round": 2,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n07",
+     "concept": "pass@k vs pass^k와 에이전트 검증 가이드",
+     "rule": "LLM 출력은 샘플링마다 달라 여러 번 실행해 본다. pass@k는 k번 중 한 번이라도 성공할 확률로 1 − (1 − p)^k이고(n번 중 c번 성공했을 때의 불편 추정량은 1 − C(n−c, k)/C(n, k)), pass^k는 k번 모두 성공할 확률 p^k라서 k가 커지면 pass@k는 오르고 pass^k는 내려간다. 프론티어 모델의 pass@1이 10~20%로 낮으면 대개 데이터셋 문제이므로 pass@k(k = 10, 50)로 다시 확인하고 그마저 낮으면 문제를 다시 만들며(슬라이드: pass@100 = 0%면 대개 과제 결함), Anthropic 가이드에 따라 평가셋은 처음부터 실제 실패 사례 20~50개를 수작업으로 모으고(이미 손으로 테스트하던 것부터), 늘릴 때는 LLM 판정보다 기계적으로 정답을 검증할 수 있는 문제로 만들고, 실제로 운영·사용할 사람이 만들고 검토하게 한다.",
+     "sources": [
+      "9주차 핵심 개념 12. pass@k와 pass^k — 문제가 망가졌는지 확인하기",
+      "9주차 핵심 개념 11. 에이전트 검증 가이드 (Anthropic) — 처음부터 데이터셋을 만들어라"
+     ],
+     "origin": {
+      "round": 2,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n08",
+     "concept": "경험의 세 출처와 가중치·하네스 공동 최적화",
+     "rule": "자가 진화가 쓰는 경험은 솔버가 직접 풀고 맞고 틀린 기록, 다른 에이전트가 타깃 에이전트가 어려워할 문제를 만들어 준 합성 경험, 사람 전문가의 데모(DemoEvolve) 세 가지다. 하네스만 바꾸는 방식의 다음 단계는 가중치와 하네스를 같이 최적화하는 것으로, 하네스 개선과 파라미터 갱신을 번갈아 하므로 무엇을 갱신할지 결정하는 별도 에이전트가 필요하다. 예를 들어 SIA에서는 Feedback-Agent가 최근 궤적을 보고 하네스를 갱신할지 가중치를 갱신할지 선택한다.",
+     "sources": [
+      "9주차 핵심 개념 9. 경험(experience)의 세 가지 출처와 가중치 공동 최적화",
+      "8주차 핵심 개념 9. 가중치 공동 최적화: SIA, Continual Harness"
+     ],
+     "origin": {
+      "round": 2,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n09",
+     "concept": "CoT 바깥 vs 모델 내부(hidden state)로 가는 흐름",
+     "rule": "지금의 하네스 엔지니어링은 모델이 토큰으로 내보낸 CoT를 Reflector가 읽고 반성하는 방식이지만, 출력된 생각과 내부 연산은 다를 수 있다(예: 'A를 생각하지 마'라고 하면 출력에는 A가 없어도 내부 활성화에는 A 관련 신호가 있다). 그래서 hidden state를 직접 분석해 하네스에 활용하는 방향(Goodfire 등 메커니즘 해석)이 떠오르고 있다. 한편 Meta-Harness는 하네스를 진화시키지만 하네스를 제안하는 에이전트 자체는 최적화하지 않으며, 그것까지 최적화하는 것이 Hyperagents다.",
+     "sources": [
+      "9주차 핵심 개념 3. 컨텍스트 엔지니어링 복습과 \"모델 내부\"로 가는 흐름",
+      "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열"
+     ],
+     "origin": {
+      "round": 2,
+      "from": "public-fail"
+     },
+     "history": []
+    }
+   ],
+   "deleted": [],
+   "seq": 9
+  },
+  {
+   "week": "week09",
+   "arm": "concept",
+   "round": 3,
+   "entries": [
+    {
+     "id": "n01",
+     "concept": "다양성 붕괴와 MAP-Elites·Island 진화",
+     "rule": "진화 탐색(AlphaEvolve 등)은 변이·교차로 새 전략을 만들고 좋은 것만 남기는데, 그대로 두면 인터넷에 논문이 많은 분야(예: 조합론) 전략으로 쏠려 다양성이 붕괴하고 이는 진화·RL 루프가 알려진 고보상 패턴만 착취하는 RSI 병목이기도 하다. 해법은 구역을 나눠 따로 진화시키는 것으로, MAP-Elites는 특성 공간의 칸마다 최고 성능 개체를 따로 보관하고 Island 진화는 여러 섬에서 독립적으로 진화시킨 뒤 필요하면 나중에 섞는다. UCB로 유망한 것과 덜 탐색한 것의 균형을 잡는 진화 탐색은 슬라이드상 ShinkaEvolve(Bandit-Based LLM Selection)이며, 교수는 다양성 유지 여부가 실제 성능 차이를 크게 만든다고 강조했다.",
+     "sources": [
+      "9주차 핵심 개념 6. 진화 탐색과 다양성: MAP-Elites, Island 진화",
+      "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열",
+      "8주차 핵심 개념 10. 미래 과제: 자동 연구의 6가지 실패 모드와 RSI 7대 병목",
+      "9주차 요약본 정정"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n02",
+     "concept": "합성 문제·피처 생성의 조건: 난이도와 분야별 생성",
+     "rule": "에이전트가 솔버용 수학 문제를 합성할 때는 솔버가 너무 쉽게 풀거나 아예 못 푸는 문제는 도움이 안 되므로 적당한 난이도(Autodata agent처럼 Strong Solver는 풀고 Weak Solver는 못 푸는 수준)여야 하고, 그냥 생성하면 특정 분야로 쏠리므로 정수론·기하·확률처럼 분야를 나눠 생성해야 한다. 테이블 파운데이션 모델은 텍스트·코드 없이 숫자 피처만 받으므로 자가 진화로 바꿀 수 있는 것은 사실상 피처이며, GPT가 예측 결과와 오차를 보고 피처 추가·삭제·전처리를 제안해 다시 예측한다(온열질환자 수 예측에 '만 65세 이상 인구 비율'을 넣어 성능 향상). 피처 제안도 인구·기상·농업 등으로 쏠리므로 카테고리별로 나누고 부족한 카테고리에서 더 생성하게 한다.",
+     "sources": [
+      "9주차 핵심 개념 7. 사례: 수학 문제 자가 생성 — 다양성이 핵심",
+      "9주차 핵심 개념 8. 사례: 테이블 파운데이션 모델 자가 진화",
+      "8주차 핵심 개념 6. 워크플로우 디자인: AI Scientist, ScientistOne, Autodata agent, ADAS, AFlow"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n03",
+     "concept": "아티팩트를 만드는 능력 vs 받아먹는 능력",
+     "rule": "아티팩트(스킬·메모리·프롬프트)를 교사 모델(예: GPT)로 만들어 학생 모델(예: Qwen)에 그대로 넣으면 교사에 특화돼 잘 활용하지 못하므로, 성능은 아티팩트를 만드는 능력과 받아먹는 능력 두 가지에 좌우된다. 슬라이드의 Lin et al. 2026 결과는 만드는 능력(harness-updating)은 Qwen2-32B~Opus 4.6에서 대체로 평평하고 활용 능력(harness-benefit)은 비단조적이어서 중간 티어 모델이 가장 이득을 본다는 것이다. 구두 설명은 결론(중간 티어 최대 이득)은 같지만 '약한 모델은 좋은 아티팩트를 못 만들고 최상위 모델은 이미 알아서 이득이 작다'는 다른 이유를 댔으므로 두 출처의 근거를 섞지 않는다.",
+     "sources": [
+      "9주차 핵심 개념 5. 자기개선 하네스: 아티팩트를 만드는 능력과 받아먹는 능력",
+      "8주차 핵심 개념 7. 자기개선 하네스: STOP → Lin et al. → Self-Harness → AHE"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n04",
+     "concept": "리워드 해킹과 eureka-ing",
+     "rule": "리워드 해킹은 루프가 진짜 능력 대신 평가의 허점을 파고드는 것으로, 유닛테스트에는 테스트 과적합, judge에는 judge 전용 꼼수, 벤치마크에는 아티팩트 착취로 나타난다(예: LiveMath에서 'a stronger result can be proven' 선택지가 학습 문항 35개 중 21개에 등장하고 항상 정답). eureka-ing은 버그나 오류로 100% 같은 점수가 나왔는데 돌파구로 착각하는 것으로, 이후 탐색이 그쪽으로만 쏠린다(p-hacking은 100번 중 성공 1번만 보고하는 것으로 별개). 대책은 평가자와 권한 제어를 루프 바깥에 두고 held-out 테스트·트레이스 감사·인간 리뷰를 쓰는 것이다.",
+     "sources": [
+      "9주차 핵심 개념 10. 리워드 해킹과 비싼 하네스",
+      "8주차 핵심 개념 10. 미래 과제: 자동 연구의 6가지 실패 모드와 RSI 7대 병목",
+      "8주차 핵심 개념 11. 하네스 진화 성능 분해 — HDA와 O / T / G"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n05",
+     "concept": "워크플로우 디자인: ADAS vs AFlow",
+     "rule": "워크플로우 디자인은 모델·도구·아티팩트의 호출 순서와 구성을 최적화하는 것이며, 설계 공간이 거대해 탐색 문제로 본다. ADAS(Hu et al. 2025)는 메타 에이전트가 과제 분해·LLM 호출 순서·답 종합 방식을 담은 새 워크플로우를 제안하는 meta-agent search이고, MCTS는 ADAS가 아니라 AFlow의 방법이다. AFlow(Zhang et al. 2025)는 워크플로우를 그래프(노드 = LLM 호출 액션, 엣지 = 코드로 구현된 논리 연산)로 표현하고, 점수와 균등 탐색의 soft mixture로 노드를 골라 LLM에게 평가 성능에 조건화된 수정본을 받아 실행·평가하고, 개선 시 트리에 추가하며 top-k 평균 점수가 정체되거나 예산이 소진되면 종료한다.",
+     "sources": [
+      "8주차 핵심 개념 6. 워크플로우 디자인: AI Scientist, ScientistOne, Autodata agent, ADAS, AFlow",
+      "9주차 핵심 개념 4. 워크플로우 디자인 복습: ADAS와 AFlow",
+      "8주차 요약본 정정"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n06",
+     "concept": "열린 문제: 하네스 재활용·하네스 요소 기여도·하네스 vs 가중치",
+     "rule": "모델 버전이 바뀔 때(구두 예: GPT-6 → GPT-7) 비싸게 만든 하네스를 그대로 쓸 수 있는지는 열린 연구 문제로, 작은 버전 차이에서는 재활용되지만 큰 변화에서는 대개 기존 스킬 등을 버리고 다시 짠다. 하네스 평가 한 번에도 큰 비용이 들고 재구성 비용은 더 크기 때문에 좋은 연구 주제로 소개됐다(구두로 ARC-AGI-3에서 97.6% → 99.6%로 올리는 데 하네스 비용만 약 2만 5천 달러가 들었다는 언급이 있으며, 이 수치는 슬라이드에 없다). 관련 열린 문제로 MCE처럼 마크다운 컨텍스트가 대량으로 쌓여도 어떤 하네스 요소가 성능을 올렸는지 알 수 없고(데이터 기여도 연구는 많지만 하네스 요소 기여도 분석은 적다), 새 지식을 하네스만으로 넣을 수 있는지 가중치를 바꿔야 하는지의 기준도 아직 없다.",
+     "sources": [
+      "9주차 핵심 개념 13. 열린 문제: 모델이 바뀌면 하네스를 재활용할 수 있나 (Q&A)",
+      "9주차 핵심 개념 5. 자기개선 하네스: 아티팩트를 만드는 능력과 받아먹는 능력",
+      "9주차 핵심 개념 9. 경험(experience)의 세 가지 출처와 가중치 공동 최적화",
+      "9주차 핵심 개념 10. 리워드 해킹과 비싼 하네스"
+     ],
+     "origin": {
+      "round": 2,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n07",
+     "concept": "pass@k vs pass^k와 에이전트 검증 가이드",
+     "rule": "LLM 출력은 샘플링마다 달라 여러 번 실행해 본다. pass@k는 k번 중 한 번이라도 성공할 확률로 1 − (1 − p)^k이고(n번 중 c번 성공했을 때의 불편 추정량은 1 − C(n−c, k)/C(n, k)), pass^k는 k번 모두 성공할 확률 p^k라서 k가 커지면 pass@k는 오르고 pass^k는 내려간다. 프론티어 모델의 pass@1이 10~20%로 낮으면 대개 데이터셋 문제이므로 pass@k(k = 10, 50)로 다시 확인하고 그마저 낮으면 문제를 다시 만들며(슬라이드: pass@100 = 0%면 대개 과제 결함), Anthropic 가이드에 따라 평가셋은 처음부터 실제 실패 사례 20~50개를 수작업으로 모으고(이미 손으로 테스트하던 것부터), 늘릴 때는 LLM 판정보다 기계적으로 정답을 검증할 수 있는 문제로 만들고, 실제로 운영·사용할 사람이 만들고 검토하게 한다.",
+     "sources": [
+      "9주차 핵심 개념 12. pass@k와 pass^k — 문제가 망가졌는지 확인하기",
+      "9주차 핵심 개념 11. 에이전트 검증 가이드 (Anthropic) — 처음부터 데이터셋을 만들어라"
+     ],
+     "origin": {
+      "round": 2,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n08",
+     "concept": "경험의 세 출처와 가중치·하네스 공동 최적화",
+     "rule": "자가 진화가 쓰는 경험은 솔버가 직접 풀고 맞고 틀린 기록, 다른 에이전트가 타깃 에이전트가 어려워할 문제를 만들어 준 합성 경험, 사람 전문가의 데모(DemoEvolve) 세 가지다. 하네스만 바꾸는 방식의 다음 단계는 가중치와 하네스를 같이 최적화하는 것으로, 하네스 개선과 파라미터 갱신을 번갈아 하므로 무엇을 갱신할지 결정하는 별도 에이전트가 필요하다. 예를 들어 SIA에서는 Feedback-Agent가 최근 궤적을 보고 하네스를 갱신할지 가중치를 갱신할지 선택한다.",
+     "sources": [
+      "9주차 핵심 개념 9. 경험(experience)의 세 가지 출처와 가중치 공동 최적화",
+      "8주차 핵심 개념 9. 가중치 공동 최적화: SIA, Continual Harness"
+     ],
+     "origin": {
+      "round": 2,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n09",
+     "concept": "CoT 바깥 vs 모델 내부(hidden state)로 가는 흐름",
+     "rule": "지금의 하네스 엔지니어링은 모델이 토큰으로 내보낸 CoT를 Reflector가 읽고 반성하는 방식이지만, 출력된 생각과 내부 연산은 다를 수 있다(예: 'A를 생각하지 마'라고 하면 출력에는 A가 없어도 내부 활성화에는 A 관련 신호가 있다). 그래서 hidden state를 직접 분석해 하네스에 활용하는 방향(Goodfire 등 메커니즘 해석)이 떠오르고 있다. 한편 Meta-Harness는 하네스를 진화시키지만 하네스를 제안하는 에이전트 자체는 최적화하지 않으며, 그것까지 최적화하는 것이 Hyperagents다.",
+     "sources": [
+      "9주차 핵심 개념 3. 컨텍스트 엔지니어링 복습과 \"모델 내부\"로 가는 흐름",
+      "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열"
+     ],
+     "origin": {
+      "round": 2,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n10",
+     "concept": "진화 탐색이 하네스 탐색에 맞는 조건",
+     "rule": "진화 탐색은 해 집단을 변이시키고 적합도가 높은 것만 남기는 방식이다. 탐색 공간이 넓거나 기형이고, 그래디언트로 직접 최적화하기는 어렵지만 평가는 쉬울 때 적합하므로 하네스 탐색에 잘 맞는다. 하네스는 코드이므로 LLM이 코드를 최적화할 수 있으면 손으로 쓴 프롬프트보다 훨씬 큰 설계 공간에 접근할 수 있다.",
+     "sources": [
+      "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열",
+      "8주차 핵심 개념 3. 하네스 최적화의 진행 방향과 5가지 축",
+      "9주차 핵심 개념 6. 진화 탐색과 다양성: MAP-Elites, Island 진화"
+     ],
+     "origin": {
+      "round": 3,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n11",
+     "concept": "AlphaEvolve 구조 vs ThetaEvolve",
+     "rule": "AlphaEvolve(Novikov et al. 2025)는 후보 프로그램 풀을 유지하면서 고정된 LLM에게 diff를 생성하게 한다. MAP-Elites로 특성 공간의 각 영역에서 고성능 프로그램을 유지하고, Island 진화로 다양한 진화 경로를 유지하며, 진화시킬 코드 영역은 `# EVOLVE-BLOCK-START/END`로 표시하고 메타프롬프트도 함께 공진화시키지만 LLM 파라미터는 갱신하지 않는다. 반면 ThetaEvolve(Wang et al. 2025)는 진화 탐색과 In-Context Learning에 더해, 실행 성능을 보상으로 삼아 GRPO로 LLM 파라미터까지 갱신한다.",
+     "sources": [
+      "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열"
+     ],
+     "origin": {
+      "round": 3,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n12",
+     "concept": "ShinkaEvolve의 구성 요소와 UCB의 대상",
+     "rule": "ShinkaEvolve(Lange et al. 2025)는 샘플 효율을 높이기 위한 진화 탐색으로, 네 가지 장치를 쓴다: Adaptive Parent Sampling(고성능 부모와 덜 탐색된 부모를 가중 샘플링), Novelty Rejection Sampling(코드 임베딩 유사도와 LLM 판단으로 중복 변이 제거), Bandit-Based LLM Selection(UCB로 기여도 높은 변이 LLM 선호), Meta-Scratchpad. 슬라이드 기준으로 UCB가 고르는 대상은 변이를 만드는 LLM이고, 고성능과 미탐색 부모 사이의 균형은 Adaptive Parent Sampling이 담당한다. 구두로 언급된 'EvoX 계열'은 이름 확인이 필요하므로 UCB 사례로는 ShinkaEvolve를 기준으로 삼는다.",
+     "sources": [
+      "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열",
+      "9주차 핵심 개념 6. 진화 탐색과 다양성: MAP-Elites, Island 진화",
+      "9주차 요약본 정정"
+     ],
+     "origin": {
+      "round": 3,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n13",
+     "concept": "프롬프트 영역의 진화 탐색: Promptbreeder, GEPA",
+     "rule": "Promptbreeder(Fernando et al. 2023)는 과제 프롬프트뿐 아니라 변이에 쓰는 프롬프트 자체도 진화시킨다. GEPA(Agrawal et al. 2025)는 반성 기반 프롬프팅과 진화 탐색을 결합한 방법으로, 시행착오 궤적을 자연어로 반성해 프롬프트 갱신안을 제안한다.",
+     "sources": [
+      "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열"
+     ],
+     "origin": {
+      "round": 3,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n14",
+     "concept": "DGM vs Hyperagents vs Self-Harness",
+     "rule": "DGM(Darwin Gödel Machine, Zhang et al. 2025)은 코딩 에이전트가 자기 파이썬 코드베이스를 수정(Self-Modification)해 더 나은 코딩 에이전트가 되고, 그 결과를 평가해 아카이브에 쌓는 열린 탐색이다. 다만 자기개선 절차가 고정돼 있고 코딩 스킬에 의존하므로 다른 도메인으로의 일반화가 제한된다. Hyperagents(DGM-H)는 Task Agent와 Meta Agent를 분리하고 Meta Agent가 Task Agent와 자기 자신의 개선 절차까지 수정하며(Metacognitive Self-Modification), Self-Harness는 열린 탐색 대신 실패에 기반해 검증된 수정에 집중한다.",
+     "sources": [
+      "8주차 핵심 개념 8. 진화 탐색(Evolutionary Search) 계열"
+     ],
+     "origin": {
+      "round": 3,
+      "from": "public-fail"
+     },
+     "history": []
+    }
+   ],
+   "deleted": [],
+   "seq": 14
+  }
+ ]
+}
