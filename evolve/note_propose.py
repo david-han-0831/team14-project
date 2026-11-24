@@ -105,7 +105,7 @@ def propose_entries(arm: str, week: str, failed: list[dict], notes: dict, llm, p
         if not why and len(added) >= max_new:
             why = ["over_cap"]
         if why:
-            rejected.append({"rule": rule, "why": why})
+            rejected.append({"concept": concept, "rule": rule, "why": why})
             continue
         added.append(add_entry(notes, concept, rule, sources, "public-fail", round_no))
     out = {"added": added, "rejected": rejected, "raw_n": len(raw), "parse_failed": not raw}

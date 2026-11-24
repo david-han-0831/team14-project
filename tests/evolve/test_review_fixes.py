@@ -366,3 +366,22 @@ def test_check_rule_false_positives_are_gone(rule):
 ])
 def test_check_rule_catches_the_evasions(rule, code):
     assert code in notes.check_rule(rule)
+
+
+# ================================================================ 탐색 2차에서 드러난 오탐: 열거용 동그라미 숫자
+def test_circled_numbers_used_for_enumeration_are_allowed():
+    rule = "연구 문제는 리워드 상태에 따라 셋으로 나뉜다. ① 리워드가 정확해도 일반화가 어렵다. ② 리워드가 부정확하면 보정이 문제이고 ③ 시뮬레이터 개선이 또 하나의 문제다."
+    assert notes.check_rule(rule) == []
+    assert notes.check_rule("②번 문제는 부정확한 리워드의 보정이다.") == []
+
+
+@pytest.mark.parametrize("rule", ["정답은 ②이다.", "이런 질문에서는 ③을 고른다.", "보기 ①이 옳다.", "② 가 정답이다."])
+def test_circled_numbers_pointing_at_options_are_still_banned(rule):
+    assert "option_ref" in notes.check_rule(rule)
+
+
+def test_rejected_record_keeps_the_concept_field():
+    n = notes.new_notes("weekXX", "seen")
+    llm = ScriptedLLM(lambda *a, **k: json.dumps({"entries": [{"concept": "가" * 61, "rule": "규칙이다.", "sources": ["s"]}]}, ensure_ascii=False))
+    out = np_.propose_entries("seen", "weekXX", fake_items(1, "p"), n, llm, public_bank=[])
+    assert out["rejected"][0]["concept"] == "가" * 61
