@@ -1,0 +1,97 @@
+{
+ "retro": true,
+ "round": 1,
+ "date": "2026-11-24",
+ "weeks": [
+  "week09"
+ ],
+ "mock": false,
+ "model": "claude-haiku-5-5",
+ "k": 3,
+ "before_ref": "9b545c6",
+ "after_ref": "HEAD",
+ "n_public": 18,
+ "n_heldout": 20,
+ "ci95": {
+  "public_before": [
+   0.8333,
+   1.0
+  ],
+  "public_after": [
+   0.9444,
+   1.0
+  ],
+  "overlap": true,
+  "heldout_before": [
+   0.8167,
+   1.0
+  ],
+  "heldout_after": [
+   0.85,
+   1.0
+  ],
+  "heldout_overlap": true
+ },
+ "baseline": {
+  "acc_public": 0.9444,
+  "acc_heldout": 0.9333
+ },
+ "after": {
+  "acc_public": 0.9815,
+  "acc_heldout": 0.95
+ },
+ "decomposition": {
+  "delta_public": 0.0371,
+  "delta_heldout": 0.0167,
+  "O": 0.0204,
+  "T": 0.0,
+  "G": 0.0167,
+  "note": "O = Δ공개 − Δ비공개. T 는 호출 수 동일이라 0. G = Δ공개 − O − T = Δ비공개."
+ },
+ "heldout_nonbasic": {
+  "n": 9,
+  "acc_before": 0.8519,
+  "acc_after": 0.8889,
+  "delta": 0.037
+ },
+ "changed": {
+  "public": {
+   "w09a-c28": [
+    0.0,
+    0.6666666666666666
+   ]
+  },
+  "heldout": {
+   "w09h-c08": [
+    0.6666666666666666,
+    1.0
+   ]
+  }
+ },
+ "original_round": {
+  "date": "2026-11-23",
+  "acc_public_before": 0.9444,
+  "acc_public_after": 1.0
+ },
+ "patches": [
+  {
+   "week": "week09",
+   "card_id": "c4",
+   "concept": "workflow-design-adas-aflow",
+   "title": "워크플로우 디자인: ADAS는 '누가 설계하나', AFlow는 '어떻게 탐색하나'"
+  }
+ ],
+ "note": "사후 측정. 비공개 세트는 이 라운드 뒤에 만들어졌다(출제자는 브리프만 보고 패치된 페이지는 보지 않음). 전후 네 번을 같은 실행에서 풀어 풀이자·날짜 차이를 없앴다. 표본이 작으니 신뢰구간과 함께 읽는다.",
+ "usage": {
+  "calls": 228,
+  "input_tokens": 3021210,
+  "output_tokens": 98942,
+  "usd": 0.3516,
+  "by_model": {
+   "claude-haiku-5-5": {
+    "calls": 228,
+    "usd": 0.3516
+   }
+  }
+ }
+}

@@ -1,0 +1,130 @@
+{
+ "round": 3,
+ "date": "2026-11-24",
+ "weeks": [
+  "week09"
+ ],
+ "mock": false,
+ "model": "claude-haiku-5-5",
+ "k": 3,
+ "reward_variant": "full",
+ "n_public": 18,
+ "n_heldout": 20,
+ "ci95": {
+  "public_before": [
+   0.9444,
+   1.0
+  ],
+  "public_after": [
+   1.0,
+   1.0
+  ],
+  "overlap": true,
+  "heldout_before": [
+   0.85,
+   1.0
+  ],
+  "heldout_after": [
+   0.85,
+   1.0
+  ]
+ },
+ "baseline": {
+  "acc_public": 0.9815,
+  "acc_heldout": 0.95,
+  "acc_none": 0.7407,
+  "source_pass": {
+   "week09": {
+    "src": 3,
+    "check": 3,
+    "private": 4,
+    "rate": 0.5
+   }
+  },
+  "R": 0.7889
+ },
+ "after": {
+  "acc_public": 1.0,
+  "acc_heldout": 0.95,
+  "source_pass": {
+   "week09": {
+    "src": 3,
+    "check": 3,
+    "private": 4,
+    "rate": 0.5
+   }
+  },
+  "R": 0.8
+ },
+ "decomposition": {
+  "delta_public": 0.0185,
+  "delta_heldout": 0.0,
+  "O": 0.0185,
+  "T": 0.0,
+  "G": 0.0,
+  "note": "O = Δ공개 − Δ비공개 (비공개 세트 없으면 계산 불가). T 는 호출 수 동일 설계라 0."
+ },
+ "heldout_nonbasic": {
+  "n": 9,
+  "acc_before": 0.8889,
+  "acc_after": 0.8889,
+  "delta": 0.0,
+  "note": "비공개 세트 중 basic(자료 없이도 풀리는 천장 문항) 표시가 없는 변별 문항만의 정답률"
+ },
+ "weak_concepts": [
+  {
+   "week": "week09",
+   "concept": "workflow-design-adas-aflow",
+   "n": 1,
+   "acc": 0.667,
+   "ids": [
+    "w09a-c28"
+   ]
+  }
+ ],
+ "patches": [
+  {
+   "card_id": "c4",
+   "title": "워크플로우 디자인을 이웃 개념과 구분하기: ADAS의 메타 에이전트 vs Meta-Harness, AFlow의 MCTS vs 진화 탐색",
+   "pro": "워크플로우 디자인은 개별 프롬프트나 컨텍스트 내용을 최적화하지 않는다. 최적화 대상은 모델·도구·아티팩트를 어떤 순서와 구성으로 호출하느냐이다. ADAS에서는 메타 에이전트가 이 구성, 즉 태스크 분해 방식, 어떤 LLM에 어떤 순서로 넣을지, 답을 어떻게 종합할지를 설계한다(meta-agent search). 이름이 비슷한 Meta-Harness는 컨텍스트 엔지니어링 축에 속하는 방법이다. 여러 초기 하네스(Zero-shot·Few-shot·ACE·MCE 등)의 성능과 비용을 재서 우수한 것을 남기고 새 하네스를 제안하므로, '메타 에이전트가 호출 구조를 설계한다'는 ADAS와는 최적화하는 축이 다르다. 거대한 조합 공간을 탐색하는 방식도 구분해야 한다. AFlow는 워크플로우를 트리로 보고 MCTS로 유망한 가지와 덜 탐색한 가지의 균형을 잡는다. 반면 AlphaEvolve 계열 진화 탐색은 전략을 변이·교차해 새 후보를 만들고, 다양성 붕괴를 막기 위해 MAP-Elites·Island를 쓴다. 두 방식 모두 후보를 모두 평가할 수 없어서 어디에 평가 예산을 쓸지 정해야 한다는 대가를 진다. 수업에서 하네스 평가 한 번에도 큰 비용이 든다고 했으므로 탐색 방식의 선택은 곧 비용의 선택이다.",
+   "easy": "ADAS는 조별 과제에서 '누가 조사하고 누가 정리하고 누가 발표할지' 순서표를 짜는 팀장 AI예요. Meta-Harness는 이미 있는 여러 공부법 중 점수 대비 비용이 좋은 것을 골라 새 공부법을 내놓는 코치라서 둘이 하는 일이 달라요. 순서표 후보가 너무 많을 때 AFlow는 갈림길 지도를 그려 좋아 보이는 길을 더 깊이 가 보는 방식이고, 진화 탐색은 좋은 풀이법끼리 섞거나 살짝 바꿔 새 후보를 만드는 방식이에요.",
+   "sources": [
+    "핵심 개념 4. 워크플로우 디자인 복습: ADAS와 AFlow (p.26~29)",
+    "핵심 개념 3. 컨텍스트 엔지니어링 복습과 \"모델 내부\"로 가는 흐름 (Meta-Harness, p.21~25)",
+    "핵심 개념 6. 진화 탐색과 다양성: MAP-Elites, Island 진화 (p.39~46)",
+    "핵심 개념 13. 열린 문제: 모델이 바뀌면 하네스를 재활용할 수 있나 (하네스 평가 비용)",
+    "요약본 정정: 메타 하니스(MetaNIS) → Meta-Harness (Lee et al. 2026)"
+   ],
+   "reason": "현재 풀이자 정답률은 0.667입니다. 기존 보강 상자에 적힌 0.0은 이전 값입니다. 기존 상자는 세 가지를 이미 보강했습니다. ADAS(설계 주체)와 AFlow(MCTS 탐색)의 역할 차이, 컨텍스트 엔지니어링(내용)과 워크플로우 디자인(호출 구조)의 구분, exploration–exploitation의 대가입니다. 그래도 혼동될 여지가 두 군데 남아 있습니다. 첫째, ADAS의 '메타 에이전트'와 컨텍스트 엔지니어링 축의 'Meta-Harness'가 이름 때문에 섞이기 쉬운데, 둘의 최적화 축 차이가 페이지에 명시돼 있지 않습니다. 둘째, AFlow의 MCTS 트리 탐색과 AlphaEvolve 계열의 변이·교차 기반 진화 탐색이 모두 '거대한 탐색 공간'을 다루지만 탐색 방식이 어떻게 다른지 나란히 보여주지 않습니다. 이 패치는 브리프 개념 3·4·6·13과 요약본 정정표의 범위 안에서만 이 두 구분을 보강합니다. 브리프에 없는 내용(ADAS 메타 에이전트 자체의 최적화 여부, AFlow의 세부 연산자 등)은 쓰지 않았습니다.",
+   "week": "week09",
+   "concept": "workflow-design-adas-aflow"
+  }
+ ],
+ "checks": {
+  "ok": true,
+  "leaks": [],
+  "html": {
+   "week09": {
+    "ok": true,
+    "errors": 0
+   }
+  }
+ },
+ "accepted": true,
+ "usage": {
+  "calls": 283,
+  "input_tokens": 3453351,
+  "output_tokens": 132832,
+  "usd": 0.5767,
+  "by_model": {
+   "claude-haiku-5-5": {
+    "calls": 282,
+    "usd": 0.4075
+   },
+   "claude-opus-5-5": {
+    "calls": 1,
+    "usd": 0.1691
+   }
+  }
+ }
+}

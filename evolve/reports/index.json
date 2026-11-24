@@ -1,10 +1,30 @@
 {
- "generated": "2026-11-23T10:54:07",
+ "generated": "2026-11-24T09:56:48",
  "rounds": [
   {
    "file": "round-01.json",
    "round": 1,
    "date": "2026-11-23",
+   "weeks": [
+    "week09"
+   ],
+   "mock": false,
+   "accepted": true
+  },
+  {
+   "file": "round-02.json",
+   "round": 2,
+   "date": "2026-11-24",
+   "weeks": [
+    "week09"
+   ],
+   "mock": false,
+   "accepted": false
+  },
+  {
+   "file": "round-03.json",
+   "round": 3,
+   "date": "2026-11-24",
    "weeks": [
     "week09"
    ],
@@ -23,6 +43,17 @@
    "file": "exp-e3-week09.json",
    "exp": "e3",
    "weeks": "week09",
+   "mock": false
+  }
+ ],
+ "retros": [
+  {
+   "file": "retro-round-01.json",
+   "round": 1,
+   "date": "2026-11-24",
+   "weeks": [
+    "week09"
+   ],
    "mock": false
   }
  ]

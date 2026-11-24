@@ -302,7 +302,14 @@ def update_report_index():
             exps.append({"file": p.name, "exp": r.get("exp"), "weeks": r.get("weeks"), "mock": r.get("mock")})
         except Exception:
             continue
-    jdump({"generated": time.strftime("%Y-%m-%dT%H:%M:%S"), "rounds": rounds, "experiments": exps}, REPORT_DIR / "index.json")
+    retros = []
+    for p in sorted(REPORT_DIR.glob("retro-round-*.json")):
+        try:
+            r = json.loads(p.read_text(encoding="utf-8"))
+            retros.append({"file": p.name, "round": r.get("round"), "date": r.get("date"), "weeks": r.get("weeks"), "mock": r.get("mock")})
+        except Exception:
+            continue
+    jdump({"generated": time.strftime("%Y-%m-%dT%H:%M:%S"), "rounds": rounds, "experiments": exps, "retros": retros}, REPORT_DIR / "index.json")
 
 
 def log(*a):

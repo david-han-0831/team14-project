@@ -1,0 +1,94 @@
+{
+ "round": 2,
+ "date": "2026-11-24",
+ "weeks": [
+  "week09"
+ ],
+ "mock": false,
+ "model": "claude-haiku-5-5",
+ "k": 1,
+ "reward_variant": "full",
+ "n_public": 18,
+ "n_heldout": 20,
+ "ci95": {
+  "public_before": [
+   1.0,
+   1.0
+  ],
+  "public_after": [
+   1.0,
+   1.0
+  ],
+  "overlap": true,
+  "heldout_before": [
+   0.85,
+   1.0
+  ],
+  "heldout_after": [
+   0.85,
+   1.0
+  ]
+ },
+ "baseline": {
+  "acc_public": 1.0,
+  "acc_heldout": 0.95,
+  "acc_none": 0.6667,
+  "source_pass": {
+   "week09": {
+    "src": 3,
+    "check": 3,
+    "private": 4,
+    "rate": 0.5
+   }
+  },
+  "R": 0.8
+ },
+ "after": {
+  "acc_public": 1.0,
+  "acc_heldout": 0.95,
+  "source_pass": {
+   "week09": {
+    "src": 3,
+    "check": 3,
+    "private": 4,
+    "rate": 0.5
+   }
+  },
+  "R": 0.8
+ },
+ "decomposition": {
+  "delta_public": 0.0,
+  "delta_heldout": 0.0,
+  "O": 0.0,
+  "T": 0.0,
+  "G": 0.0,
+  "note": "O = Δ공개 − Δ비공개 (비공개 세트 없으면 계산 불가). T 는 호출 수 동일 설계라 0."
+ },
+ "heldout_nonbasic": {
+  "n": 9,
+  "acc_before": 0.8889,
+  "acc_after": 0.8889,
+  "delta": 0.0,
+  "note": "비공개 세트 중 basic(자료 없이도 풀리는 천장 문항) 표시가 없는 변별 문항만의 정답률"
+ },
+ "weak_concepts": [],
+ "patches": [],
+ "checks": {
+  "ok": true,
+  "leaks": [],
+  "html": {}
+ },
+ "accepted": false,
+ "usage": {
+  "calls": 56,
+  "input_tokens": 549870,
+  "output_tokens": 25407,
+  "usd": 0.0677,
+  "by_model": {
+   "claude-haiku-5-5": {
+    "calls": 56,
+    "usd": 0.0677
+   }
+  }
+ }
+}
