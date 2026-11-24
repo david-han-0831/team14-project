@@ -102,14 +102,19 @@ def run(args, llm: LLM | None = None, html_override: dict | None = None, patched
             "id": q["id"], "week": wk, "type": q["type"], "concept": q.get("concept", ""),
             "attempts": attempts, "n_correct": n_ok, "k": args.k,
             "pass_at_k": n_ok > 0, "pass_hat_k": n_ok == args.k, "acc": n_ok / args.k,
+            "basic": bool(q.get("basic")),   # 자료 없이도 풀리는 것으로 검증된 문항(천장). 변별 문항만 따로 집계하기 위함
         })
         log(f"  {q['id']:>14} {q['type']} {'✓' if n_ok == args.k else ('~' if n_ok else '✗')} {n_ok}/{args.k}")
     n = len(results)
+    hard = [r["acc"] for r in results if not r["basic"]]
     summary = {
         "bank": args.bank, "condition": args.condition, "model": args.model, "effort": args.effort, "k": args.k,
         "weeks": sorted({r["week"] for r in results}), "n": n,
         "acc": round(sum(r["acc"] for r in results) / n, 4),
         "acc_ci95": bootstrap_ci([r["acc"] for r in results]),
+        # basic(천장) 표시가 없는 문항만의 정답률. 은행에 basic 표시가 없으면 전체와 같다
+        "n_nonbasic": len(hard),
+        "acc_nonbasic": round(sum(hard) / len(hard), 4) if hard else None,
         "pass_at_k": round(sum(r["pass_at_k"] for r in results) / n, 4),
         "pass_hat_k": round(sum(r["pass_hat_k"] for r in results) / n, 4),
         "by_week": {w: round(sum(r["acc"] for r in results if r["week"] == w) / max(1, sum(1 for r in results if r["week"] == w)), 4) for w in sorted({r["week"] for r in results})},

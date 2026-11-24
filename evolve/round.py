@@ -53,7 +53,7 @@ def main():
     tag = f"round-{no:02d}"
     log(f"=== EvoLecture {tag} · weeks={a.weeks} · mock={a.mock}")
     llm = LLM(mock=a.mock)
-    has_heldout = bool(load_bank("heldout"))
+    has_heldout = bool(load_bank("heldout", a.weeks.split(",")))   # 이번 대상 주차의 비공개 문항이 있을 때만
 
     # 1. 베이스라인
     log("[1/5] 베이스라인 (공개 세트, page 조건)")
@@ -99,6 +99,11 @@ def main():
     T = 0.0  # k 동일, 호출 수 동일 → 이번 설계에서는 T=0. (E1/호출 수 실험은 experiments 로)
     G = round(d_pub - (O or 0) - T, 4) if O is not None else None
 
+    # 변별 문항(basic 표시 없는 비공개 문항)만의 변화. 천장 문항이 섞이면 Δ비공개가 0 쪽으로 눌리므로 함께 본다
+    hid_nb_before = base_hid["summary"].get("acc_nonbasic") if base_hid else None
+    hid_nb_after = after_hid["summary"].get("acc_nonbasic") if after_hid else None
+    d_hid_nb = round(hid_nb_after - hid_nb_before, 4) if (hid_nb_before is not None and hid_nb_after is not None) else None
+
     accepted = checks["ok"] and R_after > R_before
     report = {
         "round": no, "date": dt.date.today().isoformat(), "weeks": weeks, "mock": a.mock, "model": a.model, "k": a.k,
@@ -111,6 +116,9 @@ def main():
                   "source_pass": sp_after, "R": R_after},
         "decomposition": {"delta_public": d_pub, "delta_heldout": d_hid, "O": O, "T": T, "G": G,
                           "note": "O = Δ공개 − Δ비공개 (비공개 세트 없으면 계산 불가). T 는 호출 수 동일 설계라 0."},
+        "heldout_nonbasic": {"n": base_hid["summary"].get("n_nonbasic") if base_hid else 0,
+                             "acc_before": hid_nb_before, "acc_after": hid_nb_after, "delta": d_hid_nb,
+                             "note": "비공개 세트 중 basic(자료 없이도 풀리는 천장 문항) 표시가 없는 변별 문항만의 정답률"},
         "weak_concepts": diag["weak_concepts"], "patches": patches, "checks": checks, "accepted": accepted,
         "usage": llm.usage.to_dict(),
     }

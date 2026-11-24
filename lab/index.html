@@ -111,7 +111,8 @@
       var ci = r.ci95 || {};
       function ciTxt(c) { return c ? " [" + pct(c[0]) + "–" + pct(c[1]) + "]" : ""; }
       [["Acc 공개 (n=" + (r.n_public || "?") + ")", pct(r.baseline.acc_public) + " → " + pct(r.after.acc_public) + '<div class="l">' + "CI95 " + ciTxt(ci.public_before) + " →" + ciTxt(ci.public_after) + (ci.overlap === false ? " · 분리" : ci.overlap === true ? " · 겹침(유의하지 않음)" : "") + "</div>"],
-       ["Acc 비공개", pct(r.baseline.acc_heldout) + " → " + pct(r.after.acc_heldout)],
+       ["Acc 비공개" + (r.n_heldout ? " (n=" + r.n_heldout + ")" : ""), pct(r.baseline.acc_heldout) + " → " + pct(r.after.acc_heldout) +
+          (r.heldout_nonbasic && r.heldout_nonbasic.n ? '<div class="l">변별 문항 ' + r.heldout_nonbasic.n + "개: " + pct(r.heldout_nonbasic.acc_before) + " → " + pct(r.heldout_nonbasic.acc_after) + "</div>" : "")],
        ["R (" + (r.reward_variant || "full") + ")", num(r.baseline.R) + " → " + num(r.after.R)],
        ["자료 없음(B)", pct(r.baseline.acc_none)],
        ["패치", (r.patches || []).length + "개"],

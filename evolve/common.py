@@ -44,13 +44,25 @@ CLI_ISOLATION = os.environ.get("EVOLVE_CLI_ISOLATION", "--bare").split()
 
 
 # ---------------------------------------------------------------- 문제 은행
+def heldout_dir() -> Path:
+    """비공개 평가 세트 위치. 공개 저장소에는 절대 두지 않는다.
+    1) HELDOUT_DIR 환경 변수  2) 저장소 안의 _heldout/heldout (gitignore, Actions 가 여기에 체크아웃)
+    3) 저장소 옆의 ../team14-heldout/heldout (로컬에서 별도 저장소로 둘 때)."""
+    env = os.environ.get("HELDOUT_DIR")
+    if env:
+        return Path(env)
+    for cand in (ROOT / "_heldout" / "heldout", ROOT.parent / "team14-heldout" / "heldout"):
+        if (cand / "index.json").exists():
+            return cand
+    return ROOT / "_heldout" / "heldout"
+
+
 def load_bank(kind: str = "public", weeks: list[str] | None = None) -> list[dict]:
     """kind: public | heldout. 자동 채점 가능한 mc/num 문항만 반환."""
     if kind == "public":
         base = PUBLIC_BANK_DIR
     else:
-        hd = os.environ.get("HELDOUT_DIR") or str(ROOT / "_heldout" / "heldout")
-        base = Path(hd)
+        base = heldout_dir()
     idx = base / "index.json"
     if not idx.exists():
         return []
