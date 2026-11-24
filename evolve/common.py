@@ -34,6 +34,7 @@ PRICE = {
 }
 WEAK_MODEL = os.environ.get("EVOLVE_WEAK_MODEL", "claude-haiku-5-5")
 STRONG_MODEL = os.environ.get("EVOLVE_STRONG_MODEL", "claude-opus-5-5")
+MID_MODEL = os.environ.get("EVOLVE_MID_MODEL", "claude-sonnet-5-5")     # 반례 문항을 거르는 풀이자(브리프 제공)
 MAX_USD = float(os.environ.get("EVOLVE_MAX_USD", "5"))
 # 백엔드: "api" = Anthropic SDK(API 키 과금) · "claude-cli" = 구독 로그인된 Claude Code 헤드리스(claude -p)
 BACKEND = os.environ.get("EVOLVE_BACKEND", "claude-cli" if not os.environ.get("ANTHROPIC_API_KEY") else "api")
@@ -57,10 +58,18 @@ def heldout_dir() -> Path:
     return ROOT / "_heldout" / "heldout"
 
 
+def ladder_dir() -> Path:
+    """전이 사다리 2·3단 문항 위치(평가 전용, 비공개). LADDER_DIR → 비공개 세트 폴더 옆의 ladder/."""
+    env = os.environ.get("LADDER_DIR")
+    return Path(env) if env else heldout_dir().parent / "ladder"
+
+
 def load_bank(kind: str = "public", weeks: list[str] | None = None) -> list[dict]:
-    """kind: public | heldout. 자동 채점 가능한 mc/num 문항만 반환."""
+    """kind: public | heldout | ladder. 자동 채점 가능한 mc/num 문항만 반환. ladder 문항은 rung(T2|T3)·pair 를 갖는다."""
     if kind == "public":
         base = PUBLIC_BANK_DIR
+    elif kind == "ladder":
+        base = ladder_dir()
     else:
         base = heldout_dir()
     idx = base / "index.json"
@@ -145,14 +154,25 @@ def brief_text(week: str) -> str:
     return t
 
 
-def context_for(week: str, condition: str, html_override: str | None = None) -> str:
-    """condition: none | brief | page"""
+# 그 주차 강의가 앞 주차의 복습을 많이 담고 있어, 문항 근거가 앞 주차 브리프에만 있는 경우
+BRIEF_WITH = {"week09": ["week08"]}
+
+
+def brief_bundle(week: str) -> str:
+    """노트 루프에서 브리프를 보는 역할(제안자·반례 출제자·거르는 풀이자)에게 주는 브리프. 9주차는 8주차와 함께."""
+    return "\n\n".join(brief_text(w) for w in [*BRIEF_WITH.get(week, []), week])
+
+
+def context_for(week: str, condition: str, html_override: str | None = None, notes_text: str = "") -> str:
+    """condition: none | brief | page | notes (notes 는 루프가 쓴 학습 노트만 준다)"""
     if condition == "none":
         return ""
     if condition == "brief":
         return brief_text(week)
     if condition == "page":
         return page_text(week, html_override)
+    if condition == "notes":
+        return notes_text
     raise ValueError(condition)
 
 
@@ -181,6 +201,10 @@ class Usage:
     def to_dict(self):
         return {"calls": self.calls, "input_tokens": self.input_tokens, "output_tokens": self.output_tokens,
                 "usd": round(self.usd, 4), "by_model": {k: {"calls": v["calls"], "usd": round(v["usd"], 4)} for k, v in self.by_model.items()}}
+
+
+# 사용량·속도 제한으로 보는 오류 글. ("Failed to generate" 의 'rate' 같은 우연한 글자 겹침은 제외)
+_LIMIT_RE = re.compile(r"usage limit|rate.?limit|too many requests|overloaded|\b429\b|\b529\b", re.I)
 
 
 class LLM:
@@ -241,11 +265,18 @@ class LLM:
             if j and not j.get("is_error"):
                 u = j.get("usage") or {}
                 self.usage.add(model, int(u.get("input_tokens", 0)) + int(u.get("cache_read_input_tokens", 0)) + int(u.get("cache_creation_input_tokens", 0)), int(u.get("output_tokens", 0)))
-                return j.get("result", "") or ""
+                text = j.get("result", "") or ""
+                if text or attempt == 2:
+                    return text
+                time.sleep(5)      # 성공인데 글이 빈 응답: 일시적 문제로 보고 다시 시도한다
+                continue
             msg = (j.get("result") if j else "") or r.stderr.strip()[-300:] or r.stdout.strip()[-300:]
             if "Not logged in" in msg:
                 raise RuntimeError("Claude Code 가 로그인돼 있지 않습니다. 터미널에서 `claude` 실행 후 /login (구독 계정), CI 는 `claude setup-token` 으로 만든 CLAUDE_CODE_OAUTH_TOKEN.")
-            if "rate" in msg.lower() or "limit" in msg.lower() or "overloaded" in msg.lower():
+            if _LIMIT_RE.search(msg):
+                # 사용량 제한: 두 번 기다려 보고 그래도 같으면 멈춘다. 빈 답을 돌려주면 오답으로 채점돼 결과가 조용히 틀어진다
+                if attempt == 2:
+                    raise RuntimeError(f"사용량 제한으로 중단: {msg[:200]} (잠시 뒤 같은 명령을 다시 실행하면 저장 지점에서 이어 돕니다)")
                 time.sleep(60 * (attempt + 1))
                 continue
             if attempt == 2:
@@ -277,6 +308,18 @@ class LLM:
                 "easy": "mock 모드의 쉬운 설명 자리표시입니다.",
                 "sources": ["content/briefs/" + hint.get("week", "weekNN") + ".md"],
                 "reason": "오답률이 높은 개념"}]}, ensure_ascii=False)
+        if kind == "note_propose":
+            return json.dumps({"entries": [{
+                "concept": hint.get("concept") or "mock-concept",
+                "rule": "mock 모드의 자리표시 규칙이다.",
+                "sources": ["mock"]}]}, ensure_ascii=False)
+        if kind == "ce_generate":
+            eid = hint.get("entry_id", "n00")
+            return json.dumps({"q": f"(mock) {eid} 규칙을 그대로 따르면 틀리게 되는 자리표시 반례 문항이다",
+                               "options": [f"{eid} 옳은 보기", f"{eid} 함정 보기", f"{eid} 틀린 보기 가", f"{eid} 틀린 보기 나"],
+                               "answer_text": f"{eid} 옳은 보기", "trap_text": f"{eid} 함정 보기", "quote": hint.get("quote", "")}, ensure_ascii=False)
+        if kind == "revise":
+            return json.dumps({"action": "rewrite", "rule": "mock 모드에서 고쳐 쓴 자리표시 규칙이다."}, ensure_ascii=False)
         return "(mock)"
 
 
@@ -309,7 +352,14 @@ def update_report_index():
             retros.append({"file": p.name, "round": r.get("round"), "date": r.get("date"), "weeks": r.get("weeks"), "mock": r.get("mock")})
         except Exception:
             continue
-    jdump({"generated": time.strftime("%Y-%m-%dT%H:%M:%S"), "rounds": rounds, "experiments": exps, "retros": retros}, REPORT_DIR / "index.json")
+    ladders = []
+    for p in sorted(REPORT_DIR.glob("ladder-*.json")):
+        try:
+            r = json.loads(p.read_text(encoding="utf-8"))
+            ladders.append({"file": p.name, "exp": r.get("exp"), "week": r.get("week"), "date": r.get("date"), "mock": r.get("mock")})
+        except Exception:
+            continue
+    jdump({"generated": time.strftime("%Y-%m-%dT%H:%M:%S"), "rounds": rounds, "experiments": exps, "retros": retros, "ladders": ladders}, REPORT_DIR / "index.json")
 
 
 def log(*a):
