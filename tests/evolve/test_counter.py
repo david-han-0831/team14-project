@@ -228,7 +228,7 @@ def test_treat_rev_cycles_when_budget_exceeds_entries():
 def test_treat_rev_with_zero_budget_makes_no_call():
     llm = make_llm()
     out = counter.treat_rev(two_entry_notes(), ["n01"], budget=0, brief=BRIEF, llm=llm, round_no=1)
-    assert llm.calls == [] and out == {"revise_calls": 0, "revised": [], "deleted": [], "rejected_rewrites": 0, "budget": 0, "unspent": 0}
+    assert llm.calls == [] and out == {"revise_calls": 0, "retries": 0, "revised": [], "deleted": [], "rejected_rewrites": 0, "rejected_reasons": [], "budget": 0, "unspent": 0}
 
 
 def test_mock_llm_runs_the_whole_treatment():
