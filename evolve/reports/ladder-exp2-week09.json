@@ -1,0 +1,1054 @@
+{
+ "exp": "exp2",
+ "week": "week09",
+ "date": "2026-11-25",
+ "mock": false,
+ "k": 3,
+ "rounds": 3,
+ "model": "claude-haiku-5-5",
+ "n": {
+  "T1": 18,
+  "T2": 18,
+  "T3": 20
+ },
+ "dropped_pairs": [],
+ "baseline": {
+  "T1": 0.7037,
+  "T2": 0.8148,
+  "T3": 0.65
+ },
+ "arms": {
+  "seen": {
+   "t1_by_round": [
+    0.7037,
+    0.9815,
+    1.0,
+    1.0
+   ],
+   "notes_n": 7,
+   "rejected_n": 0,
+   "final": {
+    "T1": 1.0,
+    "T2": 1.0,
+    "T3": 0.75
+   },
+   "decomp": {
+    "d1": 0.2963,
+    "d2": 0.1852,
+    "d3": 0.1,
+    "O_mem": 0.1111,
+    "O_facet": 0.0852,
+    "G": 0.1,
+    "O": 0.1963,
+    "nd1": 1.0,
+    "nd2": 1.0,
+    "nd3": 0.2857,
+    "nO_mem": 0.0,
+    "nO_facet": 0.7143,
+    "nG": 0.2857,
+    "nO": 0.7143,
+    "O_facet-O_mem": -0.0259,
+    "nO_facet-nO_mem": 0.7143,
+    "base1": 0.7037,
+    "base2": 0.8148,
+    "base3": 0.65
+   }
+  },
+  "seen+ce": {
+   "t1_by_round": [
+    0.7037,
+    0.9444,
+    1.0,
+    1.0
+   ],
+   "notes_n": 7,
+   "rejected_n": 0,
+   "treat": [
+    {
+     "generated": 7,
+     "passed": 7,
+     "overlap": {
+      "dropped": 0,
+      "max": 0.13,
+      "checked": true
+     },
+     "trap_rate": [
+      0.1333,
+      0.5
+     ],
+     "retest_acc": [
+      1.0,
+      1.0
+     ],
+     "revise_calls": 3,
+     "retries": 2,
+     "revised": [
+      "n02",
+      "n03"
+     ],
+     "deleted": [],
+     "rejected_rewrites": 0,
+     "rejected_reasons": [],
+     "dropped": []
+    },
+    {
+     "generated": 3,
+     "passed": 3,
+     "overlap": {
+      "dropped": 0,
+      "max": 0.21,
+      "checked": true
+     },
+     "trap_rate": [
+      0.1667,
+      0.0
+     ],
+     "retest_acc": [
+      1.0,
+      null
+     ],
+     "revise_calls": 1,
+     "retries": 0,
+     "revised": [
+      "n06"
+     ],
+     "deleted": [],
+     "rejected_rewrites": 0,
+     "rejected_reasons": [],
+     "dropped": []
+    },
+    {
+     "generated": 0,
+     "passed": 0,
+     "overlap": {
+      "dropped": 0,
+      "max": null,
+      "checked": true
+     },
+     "trap_rate": [],
+     "retest_acc": [],
+     "revise_calls": 0,
+     "retries": 0,
+     "revised": [],
+     "deleted": [],
+     "rejected_rewrites": 0,
+     "rejected_reasons": [],
+     "dropped": []
+    }
+   ],
+   "final": {
+    "T1": 1.0,
+    "T2": 1.0,
+    "T3": 0.8
+   },
+   "decomp": {
+    "d1": 0.2963,
+    "d2": 0.1852,
+    "d3": 0.15,
+    "O_mem": 0.1111,
+    "O_facet": 0.0352,
+    "G": 0.15,
+    "O": 0.1463,
+    "nd1": 1.0,
+    "nd2": 1.0,
+    "nd3": 0.4286,
+    "nO_mem": 0.0,
+    "nO_facet": 0.5714,
+    "nG": 0.4286,
+    "nO": 0.5714,
+    "O_facet-O_mem": -0.0759,
+    "nO_facet-nO_mem": 0.5714,
+    "base1": 0.7037,
+    "base2": 0.8148,
+    "base3": 0.65
+   }
+  },
+  "seen+rev": {
+   "t1_by_round": [
+    0.7037,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "notes_n": 5,
+   "rejected_n": 0,
+   "treat": [
+    {
+     "revise_calls": 3,
+     "retries": 1,
+     "revised": [
+      "n01",
+      "n02",
+      "n03"
+     ],
+     "deleted": [],
+     "rejected_rewrites": 0,
+     "rejected_reasons": [],
+     "budget": 3,
+     "unspent": 0
+    },
+    {
+     "revise_calls": 1,
+     "retries": 0,
+     "revised": [
+      "n05"
+     ],
+     "deleted": [],
+     "rejected_rewrites": 0,
+     "rejected_reasons": [],
+     "budget": 1,
+     "unspent": 0
+    },
+    {
+     "revise_calls": 0,
+     "retries": 0,
+     "revised": [],
+     "deleted": [],
+     "rejected_rewrites": 0,
+     "rejected_reasons": [],
+     "budget": 0,
+     "unspent": 0
+    }
+   ],
+   "final": {
+    "T1": 1.0,
+    "T2": 1.0,
+    "T3": 0.8333
+   },
+   "decomp": {
+    "d1": 0.2963,
+    "d2": 0.1852,
+    "d3": 0.1833,
+    "O_mem": 0.1111,
+    "O_facet": 0.0019,
+    "G": 0.1833,
+    "O": 0.113,
+    "nd1": 1.0,
+    "nd2": 1.0,
+    "nd3": 0.5238,
+    "nO_mem": 0.0,
+    "nO_facet": 0.4762,
+    "nG": 0.5238,
+    "nO": 0.4762,
+    "O_facet-O_mem": -0.1093,
+    "nO_facet-nO_mem": 0.4762,
+    "base1": 0.7037,
+    "base2": 0.8148,
+    "base3": 0.65
+   }
+  }
+ },
+ "train": {
+  "seen": {
+   "propose_calls": 2,
+   "ce_generated": 0,
+   "revise_calls": 0
+  },
+  "seen+ce": {
+   "propose_calls": 1,
+   "ce_generated": 10,
+   "revise_calls": 4
+  },
+  "seen+rev": {
+   "propose_calls": 0,
+   "ce_generated": 0,
+   "revise_calls": 4
+  }
+ },
+ "boot": {
+  "seen": {
+   "d1": {
+    "point": 0.2963,
+    "lo": 0.1111,
+    "hi": 0.5
+   },
+   "d2": {
+    "point": 0.1852,
+    "lo": 0.0185,
+    "hi": 0.3704
+   },
+   "d3": {
+    "point": 0.1,
+    "lo": -0.0167,
+    "hi": 0.2333
+   },
+   "O_mem": {
+    "point": 0.1111,
+    "lo": -0.0185,
+    "hi": 0.2778
+   },
+   "O_facet": {
+    "point": 0.0852,
+    "lo": -0.1278,
+    "hi": 0.3019
+   },
+   "G": {
+    "point": 0.1,
+    "lo": -0.0167,
+    "hi": 0.2333
+   },
+   "O": {
+    "point": 0.1963,
+    "lo": -0.037,
+    "hi": 0.4315
+   },
+   "O_facet-O_mem": {
+    "point": -0.0259,
+    "lo": -0.3222,
+    "hi": 0.263
+   },
+   "nd1": {
+    "point": 1.0,
+    "lo": 1.0,
+    "hi": 1.0
+   },
+   "nd2": {
+    "point": 1.0,
+    "lo": 1.0,
+    "hi": 1.0
+   },
+   "nd3": {
+    "point": 0.2857,
+    "lo": -0.0588,
+    "hi": 0.6842
+   },
+   "nO_mem": {
+    "point": 0.0,
+    "lo": 0.0,
+    "hi": 0.0
+   },
+   "nO_facet": {
+    "point": 0.7143,
+    "lo": 0.3158,
+    "hi": 1.0588
+   },
+   "nG": {
+    "point": 0.2857,
+    "lo": -0.0588,
+    "hi": 0.6842
+   },
+   "nO": {
+    "point": 0.7143,
+    "lo": 0.3158,
+    "hi": 1.0588
+   },
+   "nO_facet-nO_mem": {
+    "point": 0.7143,
+    "lo": 0.3158,
+    "hi": 1.0588
+   }
+  },
+  "seen+ce": {
+   "d1": {
+    "point": 0.2963,
+    "lo": 0.1111,
+    "hi": 0.5
+   },
+   "d2": {
+    "point": 0.1852,
+    "lo": 0.0185,
+    "hi": 0.3704
+   },
+   "d3": {
+    "point": 0.15,
+    "lo": 0.0333,
+    "hi": 0.2833
+   },
+   "O_mem": {
+    "point": 0.1111,
+    "lo": -0.0185,
+    "hi": 0.2778
+   },
+   "O_facet": {
+    "point": 0.0352,
+    "lo": -0.1759,
+    "hi": 0.25
+   },
+   "G": {
+    "point": 0.15,
+    "lo": 0.0333,
+    "hi": 0.2833
+   },
+   "O": {
+    "point": 0.1463,
+    "lo": -0.0815,
+    "hi": 0.3778
+   },
+   "O_facet-O_mem": {
+    "point": -0.0759,
+    "lo": -0.3685,
+    "hi": 0.213
+   },
+   "nd1": {
+    "point": 1.0,
+    "lo": 1.0,
+    "hi": 1.0
+   },
+   "nd2": {
+    "point": 1.0,
+    "lo": 1.0,
+    "hi": 1.0
+   },
+   "nd3": {
+    "point": 0.4286,
+    "lo": 0.1429,
+    "hi": 0.75
+   },
+   "nO_mem": {
+    "point": 0.0,
+    "lo": 0.0,
+    "hi": 0.0
+   },
+   "nO_facet": {
+    "point": 0.5714,
+    "lo": 0.25,
+    "hi": 0.8571
+   },
+   "nG": {
+    "point": 0.4286,
+    "lo": 0.1429,
+    "hi": 0.75
+   },
+   "nO": {
+    "point": 0.5714,
+    "lo": 0.25,
+    "hi": 0.8571
+   },
+   "nO_facet-nO_mem": {
+    "point": 0.5714,
+    "lo": 0.25,
+    "hi": 0.8571
+   }
+  },
+  "seen+rev": {
+   "d1": {
+    "point": 0.2963,
+    "lo": 0.1111,
+    "hi": 0.5
+   },
+   "d2": {
+    "point": 0.1852,
+    "lo": 0.0185,
+    "hi": 0.3704
+   },
+   "d3": {
+    "point": 0.1833,
+    "lo": 0.05,
+    "hi": 0.3333
+   },
+   "O_mem": {
+    "point": 0.1111,
+    "lo": -0.0185,
+    "hi": 0.2778
+   },
+   "O_facet": {
+    "point": 0.0019,
+    "lo": -0.2259,
+    "hi": 0.2315
+   },
+   "G": {
+    "point": 0.1833,
+    "lo": 0.05,
+    "hi": 0.3333
+   },
+   "O": {
+    "point": 0.113,
+    "lo": -0.1278,
+    "hi": 0.3574
+   },
+   "O_facet-O_mem": {
+    "point": -0.1093,
+    "lo": -0.4111,
+    "hi": 0.1907
+   },
+   "nd1": {
+    "point": 1.0,
+    "lo": 1.0,
+    "hi": 1.0
+   },
+   "nd2": {
+    "point": 1.0,
+    "lo": 1.0,
+    "hi": 1.0
+   },
+   "nd3": {
+    "point": 0.5238,
+    "lo": 0.1875,
+    "hi": 0.9048
+   },
+   "nO_mem": {
+    "point": 0.0,
+    "lo": 0.0,
+    "hi": 0.0
+   },
+   "nO_facet": {
+    "point": 0.4762,
+    "lo": 0.1,
+    "hi": 0.8125
+   },
+   "nG": {
+    "point": 0.5238,
+    "lo": 0.1875,
+    "hi": 0.9048
+   },
+   "nO": {
+    "point": 0.4762,
+    "lo": 0.0952,
+    "hi": 0.8125
+   },
+   "nO_facet-nO_mem": {
+    "point": 0.4762,
+    "lo": 0.1,
+    "hi": 0.8125
+   }
+  },
+  "diff": {
+   "seen|seen+ce": {
+    "d1": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "d2": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "d3": {
+     "point": -0.05,
+     "lo": -0.1,
+     "hi": 0.0
+    },
+    "O_mem": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "O_facet": {
+     "point": 0.05,
+     "lo": 0.0,
+     "hi": 0.1
+    },
+    "G": {
+     "point": -0.05,
+     "lo": -0.1,
+     "hi": 0.0
+    },
+    "O": {
+     "point": 0.05,
+     "lo": 0.0,
+     "hi": 0.1
+    },
+    "O_facet-O_mem": {
+     "point": 0.05,
+     "lo": 0.0,
+     "hi": 0.1
+    },
+    "nd1": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nd2": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nd3": {
+     "point": -0.1429,
+     "lo": -0.2857,
+     "hi": 0.0
+    },
+    "nO_mem": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nO_facet": {
+     "point": 0.1429,
+     "lo": 0.0,
+     "hi": 0.2857
+    },
+    "nG": {
+     "point": -0.1429,
+     "lo": -0.2857,
+     "hi": 0.0
+    },
+    "nO": {
+     "point": 0.1429,
+     "lo": 0.0,
+     "hi": 0.2857
+    },
+    "nO_facet-nO_mem": {
+     "point": 0.1429,
+     "lo": 0.0,
+     "hi": 0.2857
+    }
+   },
+   "seen|seen+rev": {
+    "d1": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "d2": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "d3": {
+     "point": -0.0833,
+     "lo": -0.2167,
+     "hi": 0.0
+    },
+    "O_mem": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "O_facet": {
+     "point": 0.0833,
+     "lo": 0.0,
+     "hi": 0.2167
+    },
+    "G": {
+     "point": -0.0833,
+     "lo": -0.2167,
+     "hi": 0.0
+    },
+    "O": {
+     "point": 0.0833,
+     "lo": 0.0,
+     "hi": 0.2167
+    },
+    "O_facet-O_mem": {
+     "point": 0.0833,
+     "lo": 0.0,
+     "hi": 0.2167
+    },
+    "nd1": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nd2": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nd3": {
+     "point": -0.2381,
+     "lo": -0.5833,
+     "hi": 0.0
+    },
+    "nO_mem": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nO_facet": {
+     "point": 0.2381,
+     "lo": 0.0,
+     "hi": 0.5833
+    },
+    "nG": {
+     "point": -0.2381,
+     "lo": -0.5833,
+     "hi": 0.0
+    },
+    "nO": {
+     "point": 0.2381,
+     "lo": 0.0,
+     "hi": 0.5833
+    },
+    "nO_facet-nO_mem": {
+     "point": 0.2381,
+     "lo": 0.0,
+     "hi": 0.5833
+    }
+   },
+   "seen+ce|seen": {
+    "d1": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "d2": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "d3": {
+     "point": 0.05,
+     "lo": 0.0,
+     "hi": 0.1
+    },
+    "O_mem": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "O_facet": {
+     "point": -0.05,
+     "lo": -0.1,
+     "hi": 0.0
+    },
+    "G": {
+     "point": 0.05,
+     "lo": 0.0,
+     "hi": 0.1
+    },
+    "O": {
+     "point": -0.05,
+     "lo": -0.1,
+     "hi": 0.0
+    },
+    "O_facet-O_mem": {
+     "point": -0.05,
+     "lo": -0.1,
+     "hi": 0.0
+    },
+    "nd1": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nd2": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nd3": {
+     "point": 0.1429,
+     "lo": 0.0,
+     "hi": 0.2857
+    },
+    "nO_mem": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nO_facet": {
+     "point": -0.1429,
+     "lo": -0.2857,
+     "hi": 0.0
+    },
+    "nG": {
+     "point": 0.1429,
+     "lo": 0.0,
+     "hi": 0.2857
+    },
+    "nO": {
+     "point": -0.1429,
+     "lo": -0.2857,
+     "hi": 0.0
+    },
+    "nO_facet-nO_mem": {
+     "point": -0.1429,
+     "lo": -0.2857,
+     "hi": 0.0
+    }
+   },
+   "seen+ce|seen+rev": {
+    "d1": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "d2": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "d3": {
+     "point": -0.0333,
+     "lo": -0.1167,
+     "hi": 0.0333
+    },
+    "O_mem": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "O_facet": {
+     "point": 0.0333,
+     "lo": -0.0333,
+     "hi": 0.1167
+    },
+    "G": {
+     "point": -0.0333,
+     "lo": -0.1167,
+     "hi": 0.0333
+    },
+    "O": {
+     "point": 0.0333,
+     "lo": -0.0333,
+     "hi": 0.1167
+    },
+    "O_facet-O_mem": {
+     "point": 0.0333,
+     "lo": -0.0333,
+     "hi": 0.1167
+    },
+    "nd1": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nd2": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nd3": {
+     "point": -0.0952,
+     "lo": -0.3478,
+     "hi": 0.1111
+    },
+    "nO_mem": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nO_facet": {
+     "point": 0.0952,
+     "lo": -0.1081,
+     "hi": 0.3478
+    },
+    "nG": {
+     "point": -0.0952,
+     "lo": -0.3478,
+     "hi": 0.1111
+    },
+    "nO": {
+     "point": 0.0952,
+     "lo": -0.1111,
+     "hi": 0.3478
+    },
+    "nO_facet-nO_mem": {
+     "point": 0.0952,
+     "lo": -0.1081,
+     "hi": 0.3478
+    }
+   },
+   "seen+rev|seen": {
+    "d1": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "d2": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "d3": {
+     "point": 0.0833,
+     "lo": 0.0,
+     "hi": 0.2167
+    },
+    "O_mem": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "O_facet": {
+     "point": -0.0833,
+     "lo": -0.2167,
+     "hi": 0.0
+    },
+    "G": {
+     "point": 0.0833,
+     "lo": 0.0,
+     "hi": 0.2167
+    },
+    "O": {
+     "point": -0.0833,
+     "lo": -0.2167,
+     "hi": 0.0
+    },
+    "O_facet-O_mem": {
+     "point": -0.0833,
+     "lo": -0.2167,
+     "hi": 0.0
+    },
+    "nd1": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nd2": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nd3": {
+     "point": 0.2381,
+     "lo": 0.0,
+     "hi": 0.5833
+    },
+    "nO_mem": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nO_facet": {
+     "point": -0.2381,
+     "lo": -0.5833,
+     "hi": 0.0
+    },
+    "nG": {
+     "point": 0.2381,
+     "lo": 0.0,
+     "hi": 0.5833
+    },
+    "nO": {
+     "point": -0.2381,
+     "lo": -0.5833,
+     "hi": 0.0
+    },
+    "nO_facet-nO_mem": {
+     "point": -0.2381,
+     "lo": -0.5833,
+     "hi": 0.0
+    }
+   },
+   "seen+rev|seen+ce": {
+    "d1": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "d2": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "d3": {
+     "point": 0.0333,
+     "lo": -0.0333,
+     "hi": 0.1167
+    },
+    "O_mem": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "O_facet": {
+     "point": -0.0333,
+     "lo": -0.1167,
+     "hi": 0.0333
+    },
+    "G": {
+     "point": 0.0333,
+     "lo": -0.0333,
+     "hi": 0.1167
+    },
+    "O": {
+     "point": -0.0333,
+     "lo": -0.1167,
+     "hi": 0.0333
+    },
+    "O_facet-O_mem": {
+     "point": -0.0333,
+     "lo": -0.1167,
+     "hi": 0.0333
+    },
+    "nd1": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nd2": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nd3": {
+     "point": 0.0952,
+     "lo": -0.1111,
+     "hi": 0.3478
+    },
+    "nO_mem": {
+     "point": 0.0,
+     "lo": 0.0,
+     "hi": 0.0
+    },
+    "nO_facet": {
+     "point": -0.0952,
+     "lo": -0.3478,
+     "hi": 0.1081
+    },
+    "nG": {
+     "point": 0.0952,
+     "lo": -0.1111,
+     "hi": 0.3478
+    },
+    "nO": {
+     "point": -0.0952,
+     "lo": -0.3478,
+     "hi": 0.1111
+    },
+    "nO_facet-nO_mem": {
+     "point": -0.0952,
+     "lo": -0.3478,
+     "hi": 0.1081
+    }
+   }
+  }
+ },
+ "judge": {
+  "H3": "판정 안 함",
+  "H1_재현": "재현 안 됨",
+  "H1_실험1": "확인 못 함"
+ },
+ "unparsed_attempts": {
+  "baseline": 0,
+  "seen": 0,
+  "seen+ce": 0,
+  "seen+rev": 0
+ },
+ "freeze": {
+  "commit": "f3f9e76",
+  "dirty": false,
+  "ladder_sha256": "d959c127af33e841f2538d9eb2a0c3323f446c1f46eaea745a4092e8832b33cd",
+  "params": {
+   "rounds": 3,
+   "k": 3,
+   "max_new": 5,
+   "solver": "claude-haiku-5-5",
+   "proposer": "claude-opus-5-5",
+   "validator": "claude-sonnet-5-5",
+   "n_boot": 10000,
+   "seed": 14,
+   "ce_per_entry": 1,
+   "ce_passes": 2,
+   "validate_k": 2,
+   "overlap": 0.5,
+   "backend": "claude-cli",
+   "cli_isolation": "--safe-mode"
+  }
+ },
+ "run_started": "2026-11-25T00:14:20",
+ "resumed": [],
+ "usage": {
+  "calls": 1082,
+  "input_tokens": 4746062,
+  "output_tokens": 522428,
+  "usd": 6.5474,
+  "by_model": {
+   "claude-haiku-5-5": {
+    "calls": 1038,
+    "usd": 0.5471
+   },
+   "claude-opus-5-5": {
+    "calls": 24,
+    "usd": 4.4518
+   },
+   "claude-sonnet-5-5": {
+    "calls": 20,
+    "usd": 1.5484
+   }
+  }
+ }
+}

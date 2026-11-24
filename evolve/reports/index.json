@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-24T20:58:13",
+ "generated": "2026-11-25T01:45:51",
  "rounds": [
   {
    "file": "round-01.json",
@@ -63,6 +63,13 @@
    "exp": "exp1",
    "week": "week09",
    "date": "2026-11-24",
+   "mock": false
+  },
+  {
+   "file": "ladder-exp2-week09.json",
+   "exp": "exp2",
+   "week": "week09",
+   "date": "2026-11-25",
    "mock": false
   }
  ]
