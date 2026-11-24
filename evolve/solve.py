@@ -74,11 +74,14 @@ def bootstrap_ci(values: list[float], n_boot: int = 2000, seed: int = 14) -> tup
     return (round(means[int(0.025 * n_boot)], 4), round(means[int(0.975 * n_boot)] - 1e-12, 4))
 
 
-def run(args, llm: LLM | None = None, html_override: dict | None = None, patched: bool = False) -> dict:
+def run(args, llm: LLM | None = None, html_override: dict | None = None, patched: bool = False,
+        bank: list[dict] | None = None, context: str | None = None) -> dict:
+    """bank 를 주면 은행을 읽지 않고 그 문항들을 푼다. context 를 주면 모든 문항의 참고 글로 그것을 쓴다(노트 루프용)."""
     weeks = args.weeks.split(",") if args.weeks else None
-    bank = load_bank(args.bank, weeks)
-    if args.limit:
-        bank = bank[: args.limit]
+    if bank is None:
+        bank = load_bank(args.bank, weeks)
+        if args.limit:
+            bank = bank[: args.limit]
     if not bank:
         raise SystemExit(f"문제가 없습니다: bank={args.bank} weeks={weeks} (HELDOUT_DIR 확인)")
     llm = llm or LLM(mock=args.mock)
@@ -88,7 +91,7 @@ def run(args, llm: LLM | None = None, html_override: dict | None = None, patched
     for q in bank:
         wk = q["week"]
         if wk not in ctx_cache:
-            ctx_cache[wk] = context_for(wk, args.condition, (html_override or {}).get(wk))
+            ctx_cache[wk] = context if context is not None else context_for(wk, args.condition, (html_override or {}).get(wk))
         ctx = ctx_cache[wk]
         user = (f"[참고 자료: {wk}]\n{ctx}\n\n" if ctx else "") + "[문제]\n" + fmt_question(q)
         attempts = []
@@ -103,6 +106,7 @@ def run(args, llm: LLM | None = None, html_override: dict | None = None, patched
             "attempts": attempts, "n_correct": n_ok, "k": args.k,
             "pass_at_k": n_ok > 0, "pass_hat_k": n_ok == args.k, "acc": n_ok / args.k,
             "basic": bool(q.get("basic")),   # 자료 없이도 풀리는 것으로 검증된 문항(천장). 변별 문항만 따로 집계하기 위함
+            **{f: q[f] for f in ("rung", "pair") if f in q},   # 전이 사다리 문항의 단과 짝
         })
         log(f"  {q['id']:>14} {q['type']} {'✓' if n_ok == args.k else ('~' if n_ok else '✗')} {n_ok}/{args.k}")
     n = len(results)

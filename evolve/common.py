@@ -57,10 +57,18 @@ def heldout_dir() -> Path:
     return ROOT / "_heldout" / "heldout"
 
 
+def ladder_dir() -> Path:
+    """전이 사다리 2·3단 문항 위치(평가 전용, 비공개). LADDER_DIR → 비공개 세트 폴더 옆의 ladder/."""
+    env = os.environ.get("LADDER_DIR")
+    return Path(env) if env else heldout_dir().parent / "ladder"
+
+
 def load_bank(kind: str = "public", weeks: list[str] | None = None) -> list[dict]:
-    """kind: public | heldout. 자동 채점 가능한 mc/num 문항만 반환."""
+    """kind: public | heldout | ladder. 자동 채점 가능한 mc/num 문항만 반환. ladder 문항은 rung(T2|T3)·pair 를 갖는다."""
     if kind == "public":
         base = PUBLIC_BANK_DIR
+    elif kind == "ladder":
+        base = ladder_dir()
     else:
         base = heldout_dir()
     idx = base / "index.json"
@@ -145,14 +153,25 @@ def brief_text(week: str) -> str:
     return t
 
 
-def context_for(week: str, condition: str, html_override: str | None = None) -> str:
-    """condition: none | brief | page"""
+# 그 주차 강의가 앞 주차의 복습을 많이 담고 있어, 문항 근거가 앞 주차 브리프에만 있는 경우
+BRIEF_WITH = {"week09": ["week08"]}
+
+
+def brief_bundle(week: str) -> str:
+    """노트 루프에서 브리프를 보는 역할(제안자·반례 출제자·거르는 풀이자)에게 주는 브리프. 9주차는 8주차와 함께."""
+    return "\n\n".join(brief_text(w) for w in [*BRIEF_WITH.get(week, []), week])
+
+
+def context_for(week: str, condition: str, html_override: str | None = None, notes_text: str = "") -> str:
+    """condition: none | brief | page | notes (notes 는 루프가 쓴 학습 노트만 준다)"""
     if condition == "none":
         return ""
     if condition == "brief":
         return brief_text(week)
     if condition == "page":
         return page_text(week, html_override)
+    if condition == "notes":
+        return notes_text
     raise ValueError(condition)
 
 
@@ -309,7 +328,14 @@ def update_report_index():
             retros.append({"file": p.name, "round": r.get("round"), "date": r.get("date"), "weeks": r.get("weeks"), "mock": r.get("mock")})
         except Exception:
             continue
-    jdump({"generated": time.strftime("%Y-%m-%dT%H:%M:%S"), "rounds": rounds, "experiments": exps, "retros": retros}, REPORT_DIR / "index.json")
+    ladders = []
+    for p in sorted(REPORT_DIR.glob("ladder-*.json")):
+        try:
+            r = json.loads(p.read_text(encoding="utf-8"))
+            ladders.append({"file": p.name, "exp": r.get("exp"), "week": r.get("week"), "date": r.get("date"), "mock": r.get("mock")})
+        except Exception:
+            continue
+    jdump({"generated": time.strftime("%Y-%m-%dT%H:%M:%S"), "rounds": rounds, "experiments": exps, "retros": retros, "ladders": ladders}, REPORT_DIR / "index.json")
 
 
 def log(*a):
