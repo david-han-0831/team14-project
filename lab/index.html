@@ -110,7 +110,7 @@
       var st = h("div", "stat");
       var ci = r.ci95 || {};
       function ciTxt(c) { return c ? " [" + pct(c[0]) + "–" + pct(c[1]) + "]" : ""; }
-      [["Acc 공개 (n=" + (r.n_public || "?") + ")", pct(r.baseline.acc_public) + " → " + pct(r.after.acc_public) + '<div class="l">' + "CI95 " + ciTxt(ci.public_before) + " →" + ciTxt(ci.public_after) + (ci.overlap === false ? " · 분리" : ci.overlap === true ? " · 겹침(유의하지 않음)" : "") + "</div>"],
+      [["Acc 공개 (n=" + (r.n_public || "?") + (r.k > 1 ? ", 문항당 " + r.k + "회" : "") + ")", pct(r.baseline.acc_public) + " → " + pct(r.after.acc_public) + '<div class="l">' + "CI95 " + ciTxt(ci.public_before) + " →" + ciTxt(ci.public_after) + (ci.overlap === false ? " · 분리" : ci.overlap === true ? " · 겹침(유의하지 않음)" : "") + "</div>"],
        ["Acc 비공개" + (r.n_heldout ? " (n=" + r.n_heldout + ")" : ""), pct(r.baseline.acc_heldout) + " → " + pct(r.after.acc_heldout) +
           (r.heldout_nonbasic && r.heldout_nonbasic.n ? '<div class="l">변별 문항 ' + r.heldout_nonbasic.n + "개: " + pct(r.heldout_nonbasic.acc_before) + " → " + pct(r.heldout_nonbasic.acc_after) + "</div>" : "")],
        ["R (" + (r.reward_variant || "full") + ")", num(r.baseline.R) + " → " + num(r.after.R)],
@@ -125,6 +125,27 @@
       if (r.weak_concepts && r.weak_concepts.length) box.appendChild(h("p", "small", "약한 개념: " + r.weak_concepts.map(function (w) { return w.week + " · " + w.concept + " (" + pct(w.acc) + ")"; }).join(" / ")));
       if (r.patches && r.patches.length) box.appendChild(h("p", "small", "패치: " + r.patches.map(function (p) { return p.week + "#" + p.card_id + " " + (p.title || ""); }).join(" / ")));
       if (r.checks && r.checks.leaks && r.checks.leaks.length) box.appendChild(h("p", "small", '<span class="badge check">유출 의심</span> ' + r.checks.leaks.length + "건"));
+      return box;
+    }
+
+    function renderRetro(r) {
+      var box = h("div", "round card");
+      box.appendChild(h("h3", null, "라운드 " + r.round + " 사후 분해 · " + r.date + " · " + (r.weeks || []).join(", ") + (r.mock ? ' <span class="pill todo">mock (가짜 풀이자)</span>' : "") + ' <span class="pill">사후 측정</span>'));
+      var st = h("div", "stat");
+      var ci = r.ci95 || {}, d = r.decomposition || {}, nb = r.heldout_nonbasic || {};
+      function ciTxt(c) { return c ? " [" + pct(c[0]) + "–" + pct(c[1]) + "]" : ""; }
+      function ov(o) { return o === false ? " · 분리" : o === true ? " · 겹침(유의하지 않음)" : ""; }
+      [["Acc 공개 (n=" + r.n_public + ", 문항당 " + r.k + "회)", pct(r.baseline.acc_public) + " → " + pct(r.after.acc_public) + '<div class="l">CI95' + ciTxt(ci.public_before) + " →" + ciTxt(ci.public_after) + ov(ci.overlap) + "</div>"],
+       ["Acc 비공개 (n=" + r.n_heldout + ")", pct(r.baseline.acc_heldout) + " → " + pct(r.after.acc_heldout) + '<div class="l">CI95' + ciTxt(ci.heldout_before) + " →" + ciTxt(ci.heldout_after) + ov(ci.heldout_overlap) + (nb.n ? "<br>변별 문항 " + nb.n + "개: " + pct(nb.acc_before) + " → " + pct(nb.acc_after) : "") + "</div>"],
+       ["O 오버피팅", num(d.O, 3)],
+       ["G 일반화", num(d.G, 3)],
+       ["비용", "$" + num(r.usage && r.usage.usd, 3)]].forEach(function (s) {
+        var c = h("div", "card"); c.appendChild(h("div", "v", s[1])); c.appendChild(h("div", "l", s[0])); st.appendChild(c);
+      });
+      box.appendChild(st);
+      var ch = h("div", "chart"); ch.appendChild(decompBar(d)); box.appendChild(ch);
+      if (r.patches && r.patches.length) box.appendChild(h("p", "small", "다시 잰 패치: " + r.patches.map(function (p) { return p.week + "#" + p.card_id + " " + (p.title || ""); }).join(" / ")));
+      if (r.note) box.appendChild(h("p", "small muted", r.note));
       return box;
     }
 
@@ -145,8 +166,13 @@
       if (!idx) return;
       if (idx.rounds && idx.rounds.length) {
         var rb = document.getElementById("rounds-box"); rb.innerHTML = "";
-        Promise.all(idx.rounds.map(function (m) { return fetch("../evolve/reports/" + m.file, { cache: "no-store" }).then(function (r) { return r.json(); }); })).then(function (rs) {
-          rs.sort(function (a, b) { return b.round - a.round; }).forEach(function (r) { rb.appendChild(renderRound(r)); });
+        var get = function (m) { return fetch("../evolve/reports/" + m.file, { cache: "no-store" }).then(function (r) { return r.json(); }); };
+        Promise.all([Promise.all(idx.rounds.map(get)), Promise.all((idx.retros || []).map(get))]).then(function (res) {
+          // 사후 분해는 해당 라운드 카드 바로 아래에 붙인다
+          res[0].sort(function (a, b) { return b.round - a.round; }).forEach(function (r) {
+            rb.appendChild(renderRound(r));
+            res[1].filter(function (t) { return t.round === r.round; }).forEach(function (t) { rb.appendChild(renderRetro(t)); });
+          });
         });
       }
       if (idx.experiments && idx.experiments.length) {
