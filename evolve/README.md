@@ -24,9 +24,20 @@ evolve/experiments.py  행동 실험 E1(effort) · E2(pass@k) · E3(하네스 �
 ```bash
 python3 -m venv .venv && .venv/bin/pip install anthropic     # api 백엔드일 때만 필요 (cli 는 표준 라이브러리만)
 claude -p "ANSWER: 2 라고만 답해" --model claude-haiku-5-5 --output-format json --bare --tools "" --no-session-persistence | head -c 300   # 로그인 확인
-# 비공개 세트(선택): git clone https://github.com/wukong-daima/team14-heldout.git _heldout
-export HELDOUT_DIR=$PWD/_heldout/heldout
 ```
+
+### 비공개 평가 세트 위치
+
+비공개 세트는 공개 저장소에 두지 않습니다(`.gitignore` 가 `_heldout/` 을 막음). 스크립트는 아래 순서로 찾습니다.
+
+1. 환경 변수 `HELDOUT_DIR`
+2. 저장소 안 `_heldout/heldout/` (Actions 가 비공개 저장소를 여기에 체크아웃)
+3. 저장소 옆 `../team14-heldout/heldout/` (로컬에서 별도 저장소로 둘 때)
+
+현재 세트(2026-11-24 생성): 8주차 15문항 · 9주차 20문항, 모두 mc/num. 문항의 `basic: true` 는 "자료 없이도 풀리는 것으로 확인된 쉬운 문항"이라는 뜻이며, 리포트는 전체 정답률과 함께 basic 이 아닌 **변별 문항만의 정답률**(`heldout_nonbasic`)을 따로 남깁니다. 2·4주차는 공개 시드와 마찬가지로 자료 없이 다 풀려서 기본 세트에 넣지 않았습니다(예비 보관).
+
+```bash
+.venv/bin/python evolve/solve.py --bank heldout --weeks week09 --condition page   # 비공개 세트만 풀어 보기
 
 GitHub Actions 에서 구독으로 돌리려면: 로컬에서 `claude setup-token` 으로 장기 토큰을 만들어 저장소 시크릿 `CLAUDE_CODE_OAUTH_TOKEN` 에 넣습니다(워크플로가 자동 감지). API 키가 있으면 `ANTHROPIC_API_KEY` 시크릿으로도 됩니다.
 
@@ -56,7 +67,8 @@ GitHub Actions 에서 구독으로 돌리려면: 로컬에서 `claude setup-toke
 
 - `R = 0.6 · Acc_public + 0.4 · SourcePass` (verify.py). `SourcePass` 는 비교표 배지 집계(`src` 통과 / `check` 미판정)로 근사.
 - 라운드 리포트의 `decomposition`: `Δ공개`, `Δ비공개`, `O = Δ공개 − Δ비공개`, `T`(이 설계에서는 호출 수 동일 → 0; 호출 수 효과는 E1·E2 로 별도 측정), `G = Δ − O − T`.
-- 비공개 세트가 없으면 O·G 는 `null` 로 남는다. **비공개 세트 없이는 "개선"을 주장하지 않는다.**
+- 비공개 세트가 없으면 O·G 는 `null` 로 남는다. **비공개 세트 없이는 "개선"을 주장하지 않는다.** 대상 주차에 비공개 문항이 없을 때도 마찬가지다(현재 8·9주차만 있음).
+- `heldout_nonbasic`: 비공개 세트 중 변별 문항만의 전/후 정답률. 쉬운 문항이 섞이면 Δ비공개가 0 쪽으로 눌리므로 둘을 함께 본다.
 
 ## 유출 방지 (리워드 해킹 차단)
 
