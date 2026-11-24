@@ -34,6 +34,7 @@ PRICE = {
 }
 WEAK_MODEL = os.environ.get("EVOLVE_WEAK_MODEL", "claude-haiku-5-5")
 STRONG_MODEL = os.environ.get("EVOLVE_STRONG_MODEL", "claude-opus-5-5")
+MID_MODEL = os.environ.get("EVOLVE_MID_MODEL", "claude-sonnet-5-5")     # 반례 문항을 거르는 풀이자(브리프 제공)
 MAX_USD = float(os.environ.get("EVOLVE_MAX_USD", "5"))
 # 백엔드: "api" = Anthropic SDK(API 키 과금) · "claude-cli" = 구독 로그인된 Claude Code 헤드리스(claude -p)
 BACKEND = os.environ.get("EVOLVE_BACKEND", "claude-cli" if not os.environ.get("ANTHROPIC_API_KEY") else "api")
@@ -301,6 +302,13 @@ class LLM:
                 "concept": hint.get("concept") or "mock-concept",
                 "rule": "mock 모드의 자리표시 규칙이다.",
                 "sources": ["mock"]}]}, ensure_ascii=False)
+        if kind == "ce_generate":
+            eid = hint.get("entry_id", "n00")
+            return json.dumps({"q": f"(mock) {eid} 규칙을 그대로 따르면 틀리게 되는 자리표시 반례 문항이다",
+                               "options": [f"{eid} 옳은 보기", f"{eid} 함정 보기", f"{eid} 틀린 보기 가", f"{eid} 틀린 보기 나"],
+                               "answer_text": f"{eid} 옳은 보기", "trap_text": f"{eid} 함정 보기", "quote": hint.get("quote", "")}, ensure_ascii=False)
+        if kind == "revise":
+            return json.dumps({"action": "rewrite", "rule": "mock 모드에서 고쳐 쓴 자리표시 규칙이다."}, ensure_ascii=False)
         return "(mock)"
 
 
