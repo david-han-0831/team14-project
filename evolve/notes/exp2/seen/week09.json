@@ -1,0 +1,413 @@
+{
+ "exp": "exp2",
+ "week": "week09",
+ "arm": "seen",
+ "mock": false,
+ "final": {
+  "week": "week09",
+  "arm": "seen",
+  "round": 3,
+  "entries": [
+   {
+    "id": "n01",
+    "concept": "자가 진화 3대 연구 문제: 사례 짝짓기",
+    "rule": "연구 문제는 리워드 상태에 따라 셋이다: 정확한 리워드로 일반화되는 루프 만들기, 부정확한 리워드의 오차 보정, 리워드(시뮬레이터) 자체를 더 정확하게 만들기. 느리고 비싼 DFT 대신 뉴럴 네트워크 포텐셜을 리워드로 쓰는 재료 생성 루프는 근사 오차가 루프를 끌고 가는 '오차 보정' 문제의 예다. 약물 투여 시 세포 반응을 계산하는 Virtual Cell은 재료 물성 시뮬레이터 스타트업과 함께 '리워드 자체를 정확하게 만드는' 문제의 예다.",
+    "sources": [
+     "9주차 1. 자가 진화 루프의 3대 연구 문제 (구두)",
+     "9주차 2. 사례: LLM 재료 생성과 DFT 대체 (구두)"
+    ],
+    "origin": {
+     "round": 1,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n02",
+    "concept": "다양성 붕괴의 원인과 분야별 진화·생성",
+    "rule": "AlphaEvolve식 변이·교차 진화가 조합론 위주로 수렴하는 원인은 LLM이 본 인터넷 논문 양이 분야마다 달라 논문이 많은 분야의 전략이 많이 생성되기 때문이다. 해법은 구역을 나눠 각각 진화시키는 MAP-Elites(특성 공간 칸마다 최고 개체 보관)와 Island 진화다. 수학 문제 자가 생성 사례에서 난이도 외 조건은 다양성이며, 그냥 생성하면 특정 분야로 쏠리므로 정수론·기하·확률처럼 분야를 나눠 분야별로 생성하게 했다(임베딩 유사도로 중복을 거르는 Novelty Rejection Sampling은 ShinkaEvolve의 기법이지 이 사례의 대응이 아니다).",
+    "sources": [
+     "9주차 6. 진화 탐색과 다양성: MAP-Elites, Island 진화",
+     "9주차 7. 사례: 수학 문제 자가 생성 — 다양성이 핵심 (구두)",
+     "8주차 8. 진화 탐색(Evolutionary Search) 계열"
+    ],
+    "origin": {
+     "round": 1,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n03",
+    "concept": "Lin et al.(2026): harness-updating vs harness-benefit",
+    "rule": "Qwen2-32B부터 Opus 4.6까지 비교한 결과, 유용한 하네스 편집을 만드는 능력(harness-updating)은 모델 간 대체로 평평하다. 갱신된 하네스를 활용하는 능력(harness-benefit)은 비단조적이라 중간 티어 모델이 가장 이득을 본다. '약한 모델은 좋은 아티팩트를 못 만든다'는 구두 설명이며 Lin et al.의 결과와 다르므로 섞지 않는다.",
+    "sources": [
+     "8주차 7. 자기개선 하네스: STOP → Lin et al. → Self-Harness → AHE",
+     "9주차 5. 자기개선 하네스: 아티팩트를 만드는 능력과 받아먹는 능력"
+    ],
+    "origin": {
+     "round": 1,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n04",
+    "concept": "자동 연구 과도한 낙관: eureka-ing 등 구분",
+    "rule": "Bubeck et al.(2025)의 eureka-ing은 버그로 나온 100% 같은 결과를 돌파구로 착각해 보고하고 그쪽으로만 탐색이 쏠리는 것이다. p-hacking은 100번 중 1번 나온 성공만 골라 보고하는 것이고, numerical duct tape는 수치 불안정을 정당화 없는 근사로 덮는 것이다. 구현이 어려워지자 흔한 단순 해법으로 이탈하는 것은 별도 실패 모드인 '실행 압박 하 구현 표류'다.",
+    "sources": [
+     "8주차 10. 미래 과제: 자동 연구의 6가지 실패 모드와 RSI 7대 병목",
+     "9주차 10. 리워드 해킹과 비싼 하네스"
+    ],
+    "origin": {
+     "round": 1,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n05",
+    "concept": "AFlow 노드 선택 규칙과 TabFM 루프의 변경 대상",
+    "rule": "AFlow는 워크플로우 트리를 MCTS로 탐색하며, 매 라운드 수정할 노드를 점수에 따른 선택과 균등한 무작위 선택을 섞은 soft mixture 확률로 고른다(UCB로 고르는 것은 ShinkaEvolve의 변이 LLM 선택이며, top-k 평균 점수 정체는 AFlow의 종료 조건이다). 테이블 파운데이션 모델 자가 진화 사례에서 바꿀 수 있는 대상이 좁았던 이유는 이 모델이 보통 텍스트나 코드를 입력으로 받지 못하고 숫자 피처만 받아 프롬프트나 코드를 바꿀 여지가 없기 때문이다. 그래서 루프는 GPT가 오차를 보고 피처를 제안·추가·삭제·전처리하는 방식이며(예: 만 65세 이상 인구 비율), 피처 쏠림은 카테고리별 생성으로 따로 다룬다.",
+    "sources": [
+     "8주차 6. 워크플로우 디자인: AI Scientist, ScientistOne, Autodata agent, ADAS, AFlow",
+     "8주차 8. 진화 탐색(Evolutionary Search) 계열",
+     "9주차 8. 사례: 테이블 파운데이션 모델 자가 진화 (구두)"
+    ],
+    "origin": {
+     "round": 1,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n06",
+    "concept": "AHE 전이 실험과 모델 버전 간 하네스 재활용",
+    "rule": "AHE는 Terminal-Bench-2에서 진화시킨 하네스를 진화를 멈춘(더 고치지 않은) 동일 상태로 SWE-bench-verified라는 다른 벤치마크로 옮겼고, 이를 하네스가 벤치마크에 특화된 것이 아니라 엔지니어링 경험이 컴포넌트에 인코딩된 증거로 해석했다. 이 실험에서 바뀐 것은 과제(벤치마크)이지 모델 버전이 아니다. 따라서 'GPT-6용으로 비싸게 만든 하네스를 GPT-7에서도 쓸 수 있나'라는 Q&A 질문에는 직접 답이 되지 않으며, 이 질문은 작은 버전 차이면 재활용되지만 큰 버전 변화에서는 대개 스킬 등을 버리고 다시 짠다는 구두 설명과 함께 열린 연구 문제로 소개됐다.",
+    "sources": [
+     "8주차 핵심 개념 7. 자기개선 하네스: STOP → Lin et al. → Self-Harness → AHE",
+     "9주차 핵심 개념 13. 열린 문제: 모델이 바뀌면 하네스를 재활용할 수 있나 (Q&A)"
+    ],
+    "origin": {
+     "round": 2,
+     "from": "public-fail"
+    },
+    "history": []
+   },
+   {
+    "id": "n07",
+    "concept": "AHE의 결과 조건 구분: Hard 티어 제외와 관측가능성 3기둥",
+    "rule": "'Hard 티어 제외'는 Terminal-Bench-2에서 AHE 하네스가 인간 설계 하네스(OpenCode, Terminus-2, Codex)보다 우수했다는 비교 결과에 붙은 조건이며, 전이 실험의 조건이 아니다. AHE는 병목을 관측가능성으로 보고 세 기둥을 둔다: 편집 가능한 모든 컴포넌트를 파일시스템에 표현하는 Component observability, 대량 궤적을 증거·실패 패턴 계층으로 요약하는 Experience observability, 모든 편집에 다음 라운드 예측을 짝지어 검증하는 Decision observability.",
+    "sources": [
+     "8주차 핵심 개념 7. 자기개선 하네스: STOP → Lin et al. → Self-Harness → AHE"
+    ],
+    "origin": {
+     "round": 2,
+     "from": "public-fail"
+    },
+    "history": []
+   }
+  ],
+  "deleted": [],
+  "seq": 7
+ },
+ "by_round": [
+  {
+   "week": "week09",
+   "arm": "seen",
+   "round": 1,
+   "entries": [
+    {
+     "id": "n01",
+     "concept": "자가 진화 3대 연구 문제: 사례 짝짓기",
+     "rule": "연구 문제는 리워드 상태에 따라 셋이다: 정확한 리워드로 일반화되는 루프 만들기, 부정확한 리워드의 오차 보정, 리워드(시뮬레이터) 자체를 더 정확하게 만들기. 느리고 비싼 DFT 대신 뉴럴 네트워크 포텐셜을 리워드로 쓰는 재료 생성 루프는 근사 오차가 루프를 끌고 가는 '오차 보정' 문제의 예다. 약물 투여 시 세포 반응을 계산하는 Virtual Cell은 재료 물성 시뮬레이터 스타트업과 함께 '리워드 자체를 정확하게 만드는' 문제의 예다.",
+     "sources": [
+      "9주차 1. 자가 진화 루프의 3대 연구 문제 (구두)",
+      "9주차 2. 사례: LLM 재료 생성과 DFT 대체 (구두)"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n02",
+     "concept": "다양성 붕괴의 원인과 분야별 진화·생성",
+     "rule": "AlphaEvolve식 변이·교차 진화가 조합론 위주로 수렴하는 원인은 LLM이 본 인터넷 논문 양이 분야마다 달라 논문이 많은 분야의 전략이 많이 생성되기 때문이다. 해법은 구역을 나눠 각각 진화시키는 MAP-Elites(특성 공간 칸마다 최고 개체 보관)와 Island 진화다. 수학 문제 자가 생성 사례에서 난이도 외 조건은 다양성이며, 그냥 생성하면 특정 분야로 쏠리므로 정수론·기하·확률처럼 분야를 나눠 분야별로 생성하게 했다(임베딩 유사도로 중복을 거르는 Novelty Rejection Sampling은 ShinkaEvolve의 기법이지 이 사례의 대응이 아니다).",
+     "sources": [
+      "9주차 6. 진화 탐색과 다양성: MAP-Elites, Island 진화",
+      "9주차 7. 사례: 수학 문제 자가 생성 — 다양성이 핵심 (구두)",
+      "8주차 8. 진화 탐색(Evolutionary Search) 계열"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n03",
+     "concept": "Lin et al.(2026): harness-updating vs harness-benefit",
+     "rule": "Qwen2-32B부터 Opus 4.6까지 비교한 결과, 유용한 하네스 편집을 만드는 능력(harness-updating)은 모델 간 대체로 평평하다. 갱신된 하네스를 활용하는 능력(harness-benefit)은 비단조적이라 중간 티어 모델이 가장 이득을 본다. '약한 모델은 좋은 아티팩트를 못 만든다'는 구두 설명이며 Lin et al.의 결과와 다르므로 섞지 않는다.",
+     "sources": [
+      "8주차 7. 자기개선 하네스: STOP → Lin et al. → Self-Harness → AHE",
+      "9주차 5. 자기개선 하네스: 아티팩트를 만드는 능력과 받아먹는 능력"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n04",
+     "concept": "자동 연구 과도한 낙관: eureka-ing 등 구분",
+     "rule": "Bubeck et al.(2025)의 eureka-ing은 버그로 나온 100% 같은 결과를 돌파구로 착각해 보고하고 그쪽으로만 탐색이 쏠리는 것이다. p-hacking은 100번 중 1번 나온 성공만 골라 보고하는 것이고, numerical duct tape는 수치 불안정을 정당화 없는 근사로 덮는 것이다. 구현이 어려워지자 흔한 단순 해법으로 이탈하는 것은 별도 실패 모드인 '실행 압박 하 구현 표류'다.",
+     "sources": [
+      "8주차 10. 미래 과제: 자동 연구의 6가지 실패 모드와 RSI 7대 병목",
+      "9주차 10. 리워드 해킹과 비싼 하네스"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n05",
+     "concept": "AFlow 노드 선택 규칙과 TabFM 루프의 변경 대상",
+     "rule": "AFlow는 워크플로우 트리를 MCTS로 탐색하며, 매 라운드 수정할 노드를 점수에 따른 선택과 균등한 무작위 선택을 섞은 soft mixture 확률로 고른다(UCB로 고르는 것은 ShinkaEvolve의 변이 LLM 선택이며, top-k 평균 점수 정체는 AFlow의 종료 조건이다). 테이블 파운데이션 모델 자가 진화 사례에서 바꿀 수 있는 대상이 좁았던 이유는 이 모델이 보통 텍스트나 코드를 입력으로 받지 못하고 숫자 피처만 받아 프롬프트나 코드를 바꿀 여지가 없기 때문이다. 그래서 루프는 GPT가 오차를 보고 피처를 제안·추가·삭제·전처리하는 방식이며(예: 만 65세 이상 인구 비율), 피처 쏠림은 카테고리별 생성으로 따로 다룬다.",
+     "sources": [
+      "8주차 6. 워크플로우 디자인: AI Scientist, ScientistOne, Autodata agent, ADAS, AFlow",
+      "8주차 8. 진화 탐색(Evolutionary Search) 계열",
+      "9주차 8. 사례: 테이블 파운데이션 모델 자가 진화 (구두)"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    }
+   ],
+   "deleted": [],
+   "seq": 5
+  },
+  {
+   "week": "week09",
+   "arm": "seen",
+   "round": 2,
+   "entries": [
+    {
+     "id": "n01",
+     "concept": "자가 진화 3대 연구 문제: 사례 짝짓기",
+     "rule": "연구 문제는 리워드 상태에 따라 셋이다: 정확한 리워드로 일반화되는 루프 만들기, 부정확한 리워드의 오차 보정, 리워드(시뮬레이터) 자체를 더 정확하게 만들기. 느리고 비싼 DFT 대신 뉴럴 네트워크 포텐셜을 리워드로 쓰는 재료 생성 루프는 근사 오차가 루프를 끌고 가는 '오차 보정' 문제의 예다. 약물 투여 시 세포 반응을 계산하는 Virtual Cell은 재료 물성 시뮬레이터 스타트업과 함께 '리워드 자체를 정확하게 만드는' 문제의 예다.",
+     "sources": [
+      "9주차 1. 자가 진화 루프의 3대 연구 문제 (구두)",
+      "9주차 2. 사례: LLM 재료 생성과 DFT 대체 (구두)"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n02",
+     "concept": "다양성 붕괴의 원인과 분야별 진화·생성",
+     "rule": "AlphaEvolve식 변이·교차 진화가 조합론 위주로 수렴하는 원인은 LLM이 본 인터넷 논문 양이 분야마다 달라 논문이 많은 분야의 전략이 많이 생성되기 때문이다. 해법은 구역을 나눠 각각 진화시키는 MAP-Elites(특성 공간 칸마다 최고 개체 보관)와 Island 진화다. 수학 문제 자가 생성 사례에서 난이도 외 조건은 다양성이며, 그냥 생성하면 특정 분야로 쏠리므로 정수론·기하·확률처럼 분야를 나눠 분야별로 생성하게 했다(임베딩 유사도로 중복을 거르는 Novelty Rejection Sampling은 ShinkaEvolve의 기법이지 이 사례의 대응이 아니다).",
+     "sources": [
+      "9주차 6. 진화 탐색과 다양성: MAP-Elites, Island 진화",
+      "9주차 7. 사례: 수학 문제 자가 생성 — 다양성이 핵심 (구두)",
+      "8주차 8. 진화 탐색(Evolutionary Search) 계열"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n03",
+     "concept": "Lin et al.(2026): harness-updating vs harness-benefit",
+     "rule": "Qwen2-32B부터 Opus 4.6까지 비교한 결과, 유용한 하네스 편집을 만드는 능력(harness-updating)은 모델 간 대체로 평평하다. 갱신된 하네스를 활용하는 능력(harness-benefit)은 비단조적이라 중간 티어 모델이 가장 이득을 본다. '약한 모델은 좋은 아티팩트를 못 만든다'는 구두 설명이며 Lin et al.의 결과와 다르므로 섞지 않는다.",
+     "sources": [
+      "8주차 7. 자기개선 하네스: STOP → Lin et al. → Self-Harness → AHE",
+      "9주차 5. 자기개선 하네스: 아티팩트를 만드는 능력과 받아먹는 능력"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n04",
+     "concept": "자동 연구 과도한 낙관: eureka-ing 등 구분",
+     "rule": "Bubeck et al.(2025)의 eureka-ing은 버그로 나온 100% 같은 결과를 돌파구로 착각해 보고하고 그쪽으로만 탐색이 쏠리는 것이다. p-hacking은 100번 중 1번 나온 성공만 골라 보고하는 것이고, numerical duct tape는 수치 불안정을 정당화 없는 근사로 덮는 것이다. 구현이 어려워지자 흔한 단순 해법으로 이탈하는 것은 별도 실패 모드인 '실행 압박 하 구현 표류'다.",
+     "sources": [
+      "8주차 10. 미래 과제: 자동 연구의 6가지 실패 모드와 RSI 7대 병목",
+      "9주차 10. 리워드 해킹과 비싼 하네스"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n05",
+     "concept": "AFlow 노드 선택 규칙과 TabFM 루프의 변경 대상",
+     "rule": "AFlow는 워크플로우 트리를 MCTS로 탐색하며, 매 라운드 수정할 노드를 점수에 따른 선택과 균등한 무작위 선택을 섞은 soft mixture 확률로 고른다(UCB로 고르는 것은 ShinkaEvolve의 변이 LLM 선택이며, top-k 평균 점수 정체는 AFlow의 종료 조건이다). 테이블 파운데이션 모델 자가 진화 사례에서 바꿀 수 있는 대상이 좁았던 이유는 이 모델이 보통 텍스트나 코드를 입력으로 받지 못하고 숫자 피처만 받아 프롬프트나 코드를 바꿀 여지가 없기 때문이다. 그래서 루프는 GPT가 오차를 보고 피처를 제안·추가·삭제·전처리하는 방식이며(예: 만 65세 이상 인구 비율), 피처 쏠림은 카테고리별 생성으로 따로 다룬다.",
+     "sources": [
+      "8주차 6. 워크플로우 디자인: AI Scientist, ScientistOne, Autodata agent, ADAS, AFlow",
+      "8주차 8. 진화 탐색(Evolutionary Search) 계열",
+      "9주차 8. 사례: 테이블 파운데이션 모델 자가 진화 (구두)"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n06",
+     "concept": "AHE 전이 실험과 모델 버전 간 하네스 재활용",
+     "rule": "AHE는 Terminal-Bench-2에서 진화시킨 하네스를 진화를 멈춘(더 고치지 않은) 동일 상태로 SWE-bench-verified라는 다른 벤치마크로 옮겼고, 이를 하네스가 벤치마크에 특화된 것이 아니라 엔지니어링 경험이 컴포넌트에 인코딩된 증거로 해석했다. 이 실험에서 바뀐 것은 과제(벤치마크)이지 모델 버전이 아니다. 따라서 'GPT-6용으로 비싸게 만든 하네스를 GPT-7에서도 쓸 수 있나'라는 Q&A 질문에는 직접 답이 되지 않으며, 이 질문은 작은 버전 차이면 재활용되지만 큰 버전 변화에서는 대개 스킬 등을 버리고 다시 짠다는 구두 설명과 함께 열린 연구 문제로 소개됐다.",
+     "sources": [
+      "8주차 핵심 개념 7. 자기개선 하네스: STOP → Lin et al. → Self-Harness → AHE",
+      "9주차 핵심 개념 13. 열린 문제: 모델이 바뀌면 하네스를 재활용할 수 있나 (Q&A)"
+     ],
+     "origin": {
+      "round": 2,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n07",
+     "concept": "AHE의 결과 조건 구분: Hard 티어 제외와 관측가능성 3기둥",
+     "rule": "'Hard 티어 제외'는 Terminal-Bench-2에서 AHE 하네스가 인간 설계 하네스(OpenCode, Terminus-2, Codex)보다 우수했다는 비교 결과에 붙은 조건이며, 전이 실험의 조건이 아니다. AHE는 병목을 관측가능성으로 보고 세 기둥을 둔다: 편집 가능한 모든 컴포넌트를 파일시스템에 표현하는 Component observability, 대량 궤적을 증거·실패 패턴 계층으로 요약하는 Experience observability, 모든 편집에 다음 라운드 예측을 짝지어 검증하는 Decision observability.",
+     "sources": [
+      "8주차 핵심 개념 7. 자기개선 하네스: STOP → Lin et al. → Self-Harness → AHE"
+     ],
+     "origin": {
+      "round": 2,
+      "from": "public-fail"
+     },
+     "history": []
+    }
+   ],
+   "deleted": [],
+   "seq": 7
+  },
+  {
+   "week": "week09",
+   "arm": "seen",
+   "round": 3,
+   "entries": [
+    {
+     "id": "n01",
+     "concept": "자가 진화 3대 연구 문제: 사례 짝짓기",
+     "rule": "연구 문제는 리워드 상태에 따라 셋이다: 정확한 리워드로 일반화되는 루프 만들기, 부정확한 리워드의 오차 보정, 리워드(시뮬레이터) 자체를 더 정확하게 만들기. 느리고 비싼 DFT 대신 뉴럴 네트워크 포텐셜을 리워드로 쓰는 재료 생성 루프는 근사 오차가 루프를 끌고 가는 '오차 보정' 문제의 예다. 약물 투여 시 세포 반응을 계산하는 Virtual Cell은 재료 물성 시뮬레이터 스타트업과 함께 '리워드 자체를 정확하게 만드는' 문제의 예다.",
+     "sources": [
+      "9주차 1. 자가 진화 루프의 3대 연구 문제 (구두)",
+      "9주차 2. 사례: LLM 재료 생성과 DFT 대체 (구두)"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n02",
+     "concept": "다양성 붕괴의 원인과 분야별 진화·생성",
+     "rule": "AlphaEvolve식 변이·교차 진화가 조합론 위주로 수렴하는 원인은 LLM이 본 인터넷 논문 양이 분야마다 달라 논문이 많은 분야의 전략이 많이 생성되기 때문이다. 해법은 구역을 나눠 각각 진화시키는 MAP-Elites(특성 공간 칸마다 최고 개체 보관)와 Island 진화다. 수학 문제 자가 생성 사례에서 난이도 외 조건은 다양성이며, 그냥 생성하면 특정 분야로 쏠리므로 정수론·기하·확률처럼 분야를 나눠 분야별로 생성하게 했다(임베딩 유사도로 중복을 거르는 Novelty Rejection Sampling은 ShinkaEvolve의 기법이지 이 사례의 대응이 아니다).",
+     "sources": [
+      "9주차 6. 진화 탐색과 다양성: MAP-Elites, Island 진화",
+      "9주차 7. 사례: 수학 문제 자가 생성 — 다양성이 핵심 (구두)",
+      "8주차 8. 진화 탐색(Evolutionary Search) 계열"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n03",
+     "concept": "Lin et al.(2026): harness-updating vs harness-benefit",
+     "rule": "Qwen2-32B부터 Opus 4.6까지 비교한 결과, 유용한 하네스 편집을 만드는 능력(harness-updating)은 모델 간 대체로 평평하다. 갱신된 하네스를 활용하는 능력(harness-benefit)은 비단조적이라 중간 티어 모델이 가장 이득을 본다. '약한 모델은 좋은 아티팩트를 못 만든다'는 구두 설명이며 Lin et al.의 결과와 다르므로 섞지 않는다.",
+     "sources": [
+      "8주차 7. 자기개선 하네스: STOP → Lin et al. → Self-Harness → AHE",
+      "9주차 5. 자기개선 하네스: 아티팩트를 만드는 능력과 받아먹는 능력"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n04",
+     "concept": "자동 연구 과도한 낙관: eureka-ing 등 구분",
+     "rule": "Bubeck et al.(2025)의 eureka-ing은 버그로 나온 100% 같은 결과를 돌파구로 착각해 보고하고 그쪽으로만 탐색이 쏠리는 것이다. p-hacking은 100번 중 1번 나온 성공만 골라 보고하는 것이고, numerical duct tape는 수치 불안정을 정당화 없는 근사로 덮는 것이다. 구현이 어려워지자 흔한 단순 해법으로 이탈하는 것은 별도 실패 모드인 '실행 압박 하 구현 표류'다.",
+     "sources": [
+      "8주차 10. 미래 과제: 자동 연구의 6가지 실패 모드와 RSI 7대 병목",
+      "9주차 10. 리워드 해킹과 비싼 하네스"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n05",
+     "concept": "AFlow 노드 선택 규칙과 TabFM 루프의 변경 대상",
+     "rule": "AFlow는 워크플로우 트리를 MCTS로 탐색하며, 매 라운드 수정할 노드를 점수에 따른 선택과 균등한 무작위 선택을 섞은 soft mixture 확률로 고른다(UCB로 고르는 것은 ShinkaEvolve의 변이 LLM 선택이며, top-k 평균 점수 정체는 AFlow의 종료 조건이다). 테이블 파운데이션 모델 자가 진화 사례에서 바꿀 수 있는 대상이 좁았던 이유는 이 모델이 보통 텍스트나 코드를 입력으로 받지 못하고 숫자 피처만 받아 프롬프트나 코드를 바꿀 여지가 없기 때문이다. 그래서 루프는 GPT가 오차를 보고 피처를 제안·추가·삭제·전처리하는 방식이며(예: 만 65세 이상 인구 비율), 피처 쏠림은 카테고리별 생성으로 따로 다룬다.",
+     "sources": [
+      "8주차 6. 워크플로우 디자인: AI Scientist, ScientistOne, Autodata agent, ADAS, AFlow",
+      "8주차 8. 진화 탐색(Evolutionary Search) 계열",
+      "9주차 8. 사례: 테이블 파운데이션 모델 자가 진화 (구두)"
+     ],
+     "origin": {
+      "round": 1,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n06",
+     "concept": "AHE 전이 실험과 모델 버전 간 하네스 재활용",
+     "rule": "AHE는 Terminal-Bench-2에서 진화시킨 하네스를 진화를 멈춘(더 고치지 않은) 동일 상태로 SWE-bench-verified라는 다른 벤치마크로 옮겼고, 이를 하네스가 벤치마크에 특화된 것이 아니라 엔지니어링 경험이 컴포넌트에 인코딩된 증거로 해석했다. 이 실험에서 바뀐 것은 과제(벤치마크)이지 모델 버전이 아니다. 따라서 'GPT-6용으로 비싸게 만든 하네스를 GPT-7에서도 쓸 수 있나'라는 Q&A 질문에는 직접 답이 되지 않으며, 이 질문은 작은 버전 차이면 재활용되지만 큰 버전 변화에서는 대개 스킬 등을 버리고 다시 짠다는 구두 설명과 함께 열린 연구 문제로 소개됐다.",
+     "sources": [
+      "8주차 핵심 개념 7. 자기개선 하네스: STOP → Lin et al. → Self-Harness → AHE",
+      "9주차 핵심 개념 13. 열린 문제: 모델이 바뀌면 하네스를 재활용할 수 있나 (Q&A)"
+     ],
+     "origin": {
+      "round": 2,
+      "from": "public-fail"
+     },
+     "history": []
+    },
+    {
+     "id": "n07",
+     "concept": "AHE의 결과 조건 구분: Hard 티어 제외와 관측가능성 3기둥",
+     "rule": "'Hard 티어 제외'는 Terminal-Bench-2에서 AHE 하네스가 인간 설계 하네스(OpenCode, Terminus-2, Codex)보다 우수했다는 비교 결과에 붙은 조건이며, 전이 실험의 조건이 아니다. AHE는 병목을 관측가능성으로 보고 세 기둥을 둔다: 편집 가능한 모든 컴포넌트를 파일시스템에 표현하는 Component observability, 대량 궤적을 증거·실패 패턴 계층으로 요약하는 Experience observability, 모든 편집에 다음 라운드 예측을 짝지어 검증하는 Decision observability.",
+     "sources": [
+      "8주차 핵심 개념 7. 자기개선 하네스: STOP → Lin et al. → Self-Harness → AHE"
+     ],
+     "origin": {
+      "round": 2,
+      "from": "public-fail"
+     },
+     "history": []
+    }
+   ],
+   "deleted": [],
+   "seq": 7
+  }
+ ]
+}
