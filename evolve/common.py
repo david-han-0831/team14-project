@@ -296,6 +296,11 @@ class LLM:
                 "easy": "mock 모드의 쉬운 설명 자리표시입니다.",
                 "sources": ["content/briefs/" + hint.get("week", "weekNN") + ".md"],
                 "reason": "오답률이 높은 개념"}]}, ensure_ascii=False)
+        if kind == "note_propose":
+            return json.dumps({"entries": [{
+                "concept": hint.get("concept") or "mock-concept",
+                "rule": "mock 모드의 자리표시 규칙이다.",
+                "sources": ["mock"]}]}, ensure_ascii=False)
         return "(mock)"
 
 
