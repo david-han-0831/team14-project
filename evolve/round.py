@@ -19,8 +19,13 @@ from types import SimpleNamespace
 from common import LLM, REPORT_DIR, ROOT, RUN_DIR, WEAK_MODEL, WEEK_DIR, jdump, load_bank, log, update_report_index
 from diagnose import diagnose
 from propose import apply_patches, propose
-from solve import run as solve_run
+from solve import run as _solve_run
 from verify import reward, source_pass, verify_patches
+
+
+def solve_run(*a, **kw):
+    """풀이 실행. 빈 응답이면 멈춘다(빈 응답을 오답으로 채점하면 약한 개념이 잘못 잡히고 리포트가 틀어진다)."""
+    return _solve_run(*a, strict=True, **kw)
 
 
 def next_round_no() -> int:
