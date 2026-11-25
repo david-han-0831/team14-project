@@ -1,0 +1,154 @@
+{
+  "week": "week10",
+  "generated": "2026-11-25",
+  "planned": 56,
+  "candidates": 56,
+  "kept": 43,
+  "dropped": 13,
+  "by_type": {
+    "mc": 26,
+    "num": 4,
+    "self": 13
+  },
+  "basic_kept": 6,
+  "answer_positions": {
+    "0": 5,
+    "1": 7,
+    "2": 8,
+    "3": 6
+  },
+  "concept_coverage": {
+    "ai-feynman": 3,
+    "coscientist-perovskite": 2,
+    "cosr-keyhole": 2,
+    "four-discovery-types": 4,
+    "identifiability": 3,
+    "mechanism": 3,
+    "observation-vs-intervention": 3,
+    "pde-find": 2,
+    "scinet-representation": 4,
+    "sindy-core": 2,
+    "sindy-stlsq-svd": 3,
+    "sr-evolve-simplify-optimize": 3,
+    "sr-vs-sindy-complexity": 2,
+    "symbolic-distillation": 3,
+    "why-equations": 4
+  },
+  "round1_pass1": {
+    "weak": 0.856,
+    "strong": 0.991
+  },
+  "round2_pass1": {
+    "weak": 0.667,
+    "strong": 0.983
+  },
+  "drop_reasons": [
+    {
+      "id": "w10a-c10",
+      "cell": "c10",
+      "q": "수업(구두)은 슬라이드의 팬 예시 대신 병원 기록 예시로 관측과 개입을 설명했다. 기록에서 A 치료제를 받은",
+      "why": [
+        "verifier:drop"
+      ]
+    },
+    {
+      "id": "w10a-c14",
+      "cell": "c14",
+      "q": "슬라이드(p.15, 수업에서는 건너뜀)는 기전을 구성 요소(Entities) · 활동(Activities) ",
+      "why": [
+        "verifier:drop"
+      ]
+    },
+    {
+      "id": "w10a-c20",
+      "cell": "c20",
+      "q": "수업(구두)은 식별성을 쿨롱 예시로 설명했다. 관측 (q1, q2, r, F)가 (1, 1, 1, 1)과 (",
+      "why": [
+        "verifier:drop"
+      ]
+    },
+    {
+      "id": "w10a-c25",
+      "cell": "c25",
+      "q": "개체 수 x를 0.1 간격으로 잰 시계열에서 x(1.0) = 2.03, x(1.1) = 2.20, x(1.2",
+      "why": [
+        "verifier:drop"
+      ]
+    },
+    {
+      "id": "w10a-c26",
+      "cell": "c26",
+      "q": "관측 (x, x′) = (1, 1.5), (2, 2.0), (3, 1.5)에 후보 라이브러리 (1, x, x",
+      "why": [
+        "verifier:drop"
+      ]
+    },
+    {
+      "id": "w10a-c30",
+      "cell": "c30",
+      "q": "슬라이드(p.33)는 유체처럼 상태 변수가 100,000개를 넘으면 SINDy의 제곱 · 곱 후보가 폭증한다",
+      "why": [
+        "score:too_easy",
+        "verifier:drop"
+      ]
+    },
+    {
+      "id": "w10a-c33",
+      "cell": "c33",
+      "q": "1차원 공간의 물리량 u(x, t) 데이터에 PDE-FIND를 적용하는 중이다. 공간 미분을 포함한 후보 항",
+      "why": [
+        "verifier:drop"
+      ]
+    },
+    {
+      "id": "w10a-c36",
+      "cell": "c36",
+      "q": "수업에서 소개한 PDE-FIND의 결과(p.37~38)를 쓰라. 나비에–스토크스 방정식에서 무엇을 확인했는지",
+      "why": [
+        "verifier:drop"
+      ]
+    },
+    {
+      "id": "w10a-c37",
+      "cell": "c37",
+      "q": "수업 자료(p.40)가 심볼릭 회귀의 평가 기준으로 정의한 수식 복잡도를 그대로 세면, 수식 x·x + 3·",
+      "why": [
+        "score:too_easy",
+        "verifier:drop"
+      ]
+    },
+    {
+      "id": "w10a-c40",
+      "cell": "c40",
+      "q": "심볼릭 회귀를 돌려 다음 다섯 후보 식을 얻었다(가상의 설정). 괄호 안은 (수식 복잡도, 오차)다.\nP1 ",
+      "why": [
+        "verifier:drop"
+      ]
+    },
+    {
+      "id": "w10a-c44",
+      "cell": "c44",
+      "q": "참 관계가 y = 2.5·sin(x)인 데이터에 심볼릭 회귀를 돌리는 중, Evolve가 sin(x)라는 구",
+      "why": [
+        "verifier:drop"
+      ]
+    },
+    {
+      "id": "w10a-c48",
+      "cell": "c48",
+      "q": "AI Feynman 방식으로 학습한 신경망 f̂에서, 입력을 겹치지 않는 두 묶음 u, v로 나눈 검사 결과",
+      "why": [
+        "score:too_easy",
+        "verifier:drop"
+      ]
+    },
+    {
+      "id": "w10a-c49",
+      "cell": "c49",
+      "q": "학습된 Transformer의 한 레이어를 SymTorch(ICLR 2026 워크숍)로 다루려 한다. 슬라이",
+      "why": [
+        "verifier:drop"
+      ]
+    }
+  ]
+}
